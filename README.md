@@ -46,7 +46,7 @@ SCHEDULE_DEPENDENT
 AgentSerial requires Python 3.11 or newer.
 
 ```console
-python -m pip install agentserial
+python -m pip install "agentserial @ https://github.com/geragew/agentserial/archive/refs/tags/v0.7.0.zip"
 agentserial start
 ```
 
@@ -186,9 +186,12 @@ python -m pip install -e ".[dev]"
 pytest
 python scripts/export_schemas.py --check
 python scripts/release_smoke.py
+python scripts/release_metadata.py
 ```
 
 The visual system is explained in [DESIGN_RATIONALE.md](DESIGN_RATIONALE.md).
+The registry publication and artifact-verification process is documented in
+[RELEASE.md](RELEASE.md).
 
 On PowerShell, place the command on one line or use PowerShell's backtick for
 line continuation.

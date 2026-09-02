@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.27.0"]
 build-backend = "hatchling.build"
 
 [project]
@@ -10,6 +10,20 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
 authors = [{name = "GERAGEW", email = "GERAGEW@ICLOUD.COM"}]
+keywords = ["ai-agents", "concurrency", "verification", "observability", "opentelemetry"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Framework :: FastAPI",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Testing",
+]
 dependencies = [
   "fastapi>=0.116,<1",
   "pydantic>=2.8,<3",
@@ -35,6 +49,13 @@ dev = [
 
 [project.scripts]
 agentserial = "agentserial.cli:app"
+
+[project.urls]
+Homepage = "https://geragew.github.io/agentserial/"
+Documentation = "https://github.com/geragew/agentserial#readme"
+Source = "https://github.com/geragew/agentserial"
+Issues = "https://github.com/geragew/agentserial/issues"
+"Release Notes" = "https://github.com/geragew/agentserial/releases"
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentserial"]

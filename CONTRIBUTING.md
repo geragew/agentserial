@@ -13,6 +13,7 @@ python -m ruff format --check agentserial tests scripts
 pytest
 python scripts/export_schemas.py --check
 python scripts/release_smoke.py
+python scripts/release_metadata.py
 npm ci
 npm run test:sdk
 npm run typecheck:sdk
@@ -24,3 +25,6 @@ Tests must not require a network connection, model API, credential, or external
 service after dependencies are installed. Examples must contain fictional data
 only. Keep public behavior deterministic and preserve causal reachability when
 changing order projection or counterexample reduction.
+
+Release maintainers must follow [RELEASE.md](RELEASE.md). Python and JavaScript
+package versions must remain identical.

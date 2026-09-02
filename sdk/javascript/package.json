@@ -2,6 +2,7 @@
   "name": "@geragew/agentserial",
   "version": "0.7.0",
   "description": "Zero-dependency AgentSerial trace recorder for JavaScript runtimes",
+  "keywords": ["ai-agents", "concurrency", "observability", "opentelemetry", "verification"],
   "type": "module",
   "exports": {
     ".": {
@@ -14,5 +15,22 @@
     }
   },
   "files": ["src", "README.md"],
-  "license": "MIT"
+  "license": "MIT",
+  "author": "GERAGEW <GERAGEW@ICLOUD.COM>",
+  "homepage": "https://geragew.github.io/agentserial/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geragew/agentserial.git",
+    "directory": "sdk/javascript"
+  },
+  "bugs": {
+    "url": "https://github.com/geragew/agentserial/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

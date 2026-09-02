@@ -112,13 +112,13 @@ capture, but the shared adapter contract can be implemented immediately.
 **Goal:** make installation predictable through standard package registries.
 
 - [ ] `PKG-001` Reserve and validate the Python package name on PyPI.
-- [ ] `PKG-002` Automate signed Python builds and Trusted Publishing.
+- [x] `PKG-002` Automate signed Python builds and Trusted Publishing.
 - [ ] `PKG-003` Reserve and validate the JavaScript package name on npm.
-- [ ] `PKG-004` Automate provenance-enabled npm publishing.
-- [ ] `PKG-005` Verify fresh installs on Windows, Linux, and macOS.
-- [ ] `PKG-006` Add release notes, upgrade guidance, and rollback instructions.
-- [ ] `PKG-007` Block releases when package contents or smoke tests fail.
-- [ ] `PKG-008` Publish an artifact manifest with checksums, schema compatibility,
+- [x] `PKG-004` Automate provenance-enabled npm publishing.
+- [x] `PKG-005` Verify fresh installs on Windows, Linux, and macOS.
+- [x] `PKG-006` Add release notes, upgrade guidance, and rollback instructions.
+- [x] `PKG-007` Block releases when package contents or smoke tests fail.
+- [x] `PKG-008` Publish an artifact manifest with checksums, schema compatibility,
   supported runtimes, and software bill of materials.
 
 **Acceptance criteria:** `pip install agentserial` and the documented npm

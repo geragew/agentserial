@@ -1,22 +1,140 @@
-name: Publish Python package
+name: Release packages
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  pypi:
+  validate:
+    name: Validate (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - run: python -m pip install -e ".[dev]"
+      - run: npm ci
+      - run: python scripts/release_metadata.py --ref "${{ github.ref_name }}"
+      - run: python scripts/release_smoke.py
+      - run: npm run test:sdk
+      - run: npm run typecheck:sdk
+      - run: npm pack ./sdk/javascript --dry-run
+
+  build:
+    needs: validate
     runs-on: ubuntu-latest
-    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - run: python -m pip install build twine
+      - run: npm ci
+      - run: python scripts/release_metadata.py --ref "${{ github.ref_name }}"
+      - run: python -m build --outdir release
+      - run: npm pack ./sdk/javascript --pack-destination release
+      - run: python -m twine check release/*.whl release/*.tar.gz
+      - uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: release/agentserial.spdx.json
+          upload-artifact: false
+      - run: >-
+          python scripts/release_metadata.py
+          --directory release
+          --output release-manifest.json
+          --commit "${{ github.sha }}"
+          --ref "${{ github.ref_name }}"
+      - uses: actions/attest@v4
+        with:
+          subject-path: release/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ github.ref_name }}
+          path: |
+            release/*
+            release-manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish-pypi:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/agentserial
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/download-artifact@v5
         with:
-          python-version: "3.13"
-      - run: python -m pip install build
-      - run: python -m build
+          name: release-${{ github.ref_name }}
+          path: artifacts
+      - run: mkdir python-dist && mv artifacts/*.whl artifacts/*.tar.gz python-dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: python-dist/
+
+  publish-npm:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@geragew/agentserial
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: release-${{ github.ref_name }}
+          path: artifacts
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm publish artifacts/geragew-agentserial-*.tgz --access public --provenance
+
+  attach-assets:
+    if: github.event_name == 'release'
+    needs: [publish-pypi, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: release-${{ github.ref_name }}
+          path: artifacts
+      - run: gh release upload "${{ github.event.release.tag_name }}" artifacts/* --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
