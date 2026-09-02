@@ -1,5 +1,8 @@
 # Roadmap
 
+The detailed, task-level adoption backlog is maintained in
+[`docs/adoption/README.md`](docs/adoption/README.md).
+
 ## Delivered through v0.7
 
 Strict schemas, exhaustive contract replay classification, four invariant types,
