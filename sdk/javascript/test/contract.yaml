@@ -1,0 +1,6 @@
+version: "0.1"
+invariants:
+  - id: non-negative
+    type: min_value
+    resource: balance
+    min: 0

@@ -43,3 +43,27 @@ def test_recorder_is_thread_safe(tmp_path: Path) -> None:
     history = import_jsonl(trace)
     assert len(history.operations) == 20
     assert {operation.id for operation in history.operations} == {f"op-{index}" for index in range(20)}
+
+
+def test_recorder_rejects_duplicate_operations(tmp_path: Path) -> None:
+    recorder = TraceRecorder(tmp_path / "events.jsonl", "duplicate-run", {"value": (0, 0)})
+    recorder.operation("write", "agent-a")
+
+    with pytest.raises(ValueError, match="duplicate operation ID"):
+        recorder.operation("write", "agent-b")
+
+
+def test_recorder_rejects_unknown_resources_at_capture_time(tmp_path: Path) -> None:
+    recorder = TraceRecorder(tmp_path / "events.jsonl", "resource-run", {"known": (0, 0)})
+
+    with pytest.raises(ValueError, match="unknown resource"):
+        recorder.operation("write", "agent").effect("set", "missing", 1)
+
+
+def test_recorder_uses_exclusive_file_creation(tmp_path: Path) -> None:
+    trace = tmp_path / "events.jsonl"
+    trace.write_text("existing", encoding="utf-8")
+
+    with pytest.raises(FileExistsError, match="refusing to overwrite"):
+        TraceRecorder(trace, "exclusive-run", {"value": (0, 0)})
+    assert trace.read_text(encoding="utf-8") == "existing"

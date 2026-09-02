@@ -69,6 +69,7 @@ examples/
   06_permission_stale/README.md
 tests/
 scripts/
+sdk/javascript/
 README.md
 SPEC.md
 DESIGN.md

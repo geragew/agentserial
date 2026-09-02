@@ -52,6 +52,7 @@ def main() -> int:
         application_check = run(
             str(python),
             "-c",
+            "from agentserial import TraceRecorder; "
             "from importlib.resources import files; "
             "from agentserial.api import app; "
             "page=files('agentserial').joinpath('web', 'index.html'); "
@@ -59,6 +60,7 @@ def main() -> int:
             "assert 'Analyze files' in page.read_text(encoding='utf-8'), 'incomplete bundled workspace'; "
             "paths={route.path for route in app.routes}; "
             "assert {'/', '/app'}.issubset(paths), f'missing workspace routes: {paths}'; "
+            "assert TraceRecorder.__name__ == 'TraceRecorder'; "
             "print(app.title)",
         )
         if "AgentSerial API" not in application_check.stdout:

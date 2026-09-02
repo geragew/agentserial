@@ -14,6 +14,8 @@ pytest
 python scripts/export_schemas.py --check
 python scripts/release_smoke.py
 npm ci
+npm run test:sdk
+npm run typecheck:sdk
 npm run test:ui
 npm run test:integration
 ```

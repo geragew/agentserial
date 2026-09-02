@@ -111,3 +111,29 @@ recorder.order("policy-check", "purchase-a")
 ```
 
 Pass `overwrite=True` only when replacing an existing trace intentionally.
+
+## JavaScript runtime recorder
+
+The typed ESM SDK under `sdk/javascript` implements the same atomic lifecycle
+without runtime dependencies. Its core accepts a synchronous output callback;
+the `/node` entry point provides exclusive JSONL file creation.
+
+```js
+import { createFileRecorder } from "@geragew/agentserial/node";
+
+const recorder = createFileRecorder("events.jsonl", {
+  historyId: "payment-run-42",
+  initialState: { spends: { value: [], version: 0 } },
+});
+
+await recorder.capture("purchase-a", "buyer-agent", async operation => {
+  operation.read("spends", [], 0);
+  operation.effect("append", "spends", 800);
+  await executePurchase();
+});
+```
+
+`capture` commits when the callback resolves. When it throws or rejects, the
+original error is rethrown after a failed operation is recorded. For runtimes
+without a filesystem, instantiate `TraceRecorder` from the base entry point and
+provide `emit(chunk)` to route complete JSONL batches to durable storage.

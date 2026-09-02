@@ -4,10 +4,14 @@
   "type": "module",
   "scripts": {
     "capture": "node scripts/capture-media.mjs",
+    "pack:sdk": "npm pack ./sdk/javascript --pack-destination downloads",
+    "typecheck:sdk": "tsc --project sdk/javascript/tsconfig.json",
+    "test:sdk": "node --test sdk/javascript/test/*.test.js",
     "test:ui": "node scripts/test-ui.mjs",
     "test:integration": "node scripts/test-ui-api.mjs"
   },
   "devDependencies": {
-    "playwright": "^1.55.0"
+    "playwright": "^1.55.0",
+    "typescript": "^5.9.2"
   }
 }

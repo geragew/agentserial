@@ -1,0 +1,18 @@
+{
+  "name": "@geragew/agentserial",
+  "version": "0.7.0",
+  "description": "Zero-dependency AgentSerial trace recorder for JavaScript runtimes",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./node": {
+      "types": "./src/node.d.ts",
+      "default": "./src/node.js"
+    }
+  },
+  "files": ["src", "README.md"],
+  "license": "MIT"
+}

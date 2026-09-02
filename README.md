@@ -71,6 +71,44 @@ agentserial check history.json --contract contract.yaml
 agentserial report history.json --contract contract.yaml --output report.html
 ```
 
+## Runtime SDKs
+
+Instrument Python operations with the thread-safe recorder included in the
+standard package:
+
+```python
+from agentserial import TraceRecorder
+
+recorder = TraceRecorder("events.jsonl", "payment-run", {"balance": (1000, 0)})
+with recorder.operation("purchase-a", "buyer-agent") as operation:
+    operation.read("balance", 1000, 0)
+    operation.effect("increment", "balance", -800)
+```
+
+The zero-dependency JavaScript SDK ships as a typed ESM package in each release:
+
+```console
+npm install https://github.com/geragew/agentserial/releases/download/v0.7.0/geragew-agentserial-0.7.0.tgz
+```
+
+```js
+import { createFileRecorder } from "@geragew/agentserial/node";
+
+const recorder = createFileRecorder("events.jsonl", {
+  historyId: "payment-run",
+  initialState: { balance: { value: 1000, version: 0 } },
+});
+await recorder.capture("purchase-a", "buyer-agent", async operation => {
+  operation.read("balance", 1000, 0);
+  operation.effect("increment", "balance", -800);
+  await purchase();
+});
+```
+
+Both SDKs emit the same strict JSONL lifecycle. Successful operations are
+written atomically; failed callbacks record failure and discard buffered
+effects. See [INTEGRATION.md](INTEGRATION.md) for the protocol and guarantees.
+
 ## HTTP API
 
 The HTTP API is included in the standard installation and exposes the same
@@ -188,7 +226,7 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.6.0`) intended for research,
+AgentSerial is an early open-source release (`v0.7.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.

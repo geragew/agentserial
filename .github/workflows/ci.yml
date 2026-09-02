@@ -46,5 +46,10 @@ jobs:
       - run: python -m pip install -e .
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: npm run test:sdk
+      - run: npm run typecheck:sdk
+      - run: node sdk/javascript/test/generate-fixture.mjs ${{ runner.temp }}/javascript.jsonl
+      - run: agentserial import-jsonl ${{ runner.temp }}/javascript.jsonl --output ${{ runner.temp }}/history.json
+      - run: agentserial validate ${{ runner.temp }}/history.json --contract sdk/javascript/test/contract.yaml
       - run: npm run test:ui
       - run: npm run test:integration

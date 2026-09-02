@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentserial"
-version = "0.6.0"
+version = "0.7.0"
 description = "Correctness classification for parallel AI-agent effect histories"
 readme = "README.md"
 requires-python = ">=3.11"

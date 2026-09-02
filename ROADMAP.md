@@ -1,11 +1,12 @@
 # Roadmap
 
-## Delivered through v0.6
+## Delivered through v0.7
 
 Strict schemas, exhaustive contract replay classification, four invariant types,
 safe and unsafe witnesses, memoized replay, deterministic 1-minimal reduction,
 CLI, local API, zero-configuration workspace, JSONL recording, OpenTelemetry
-import, standalone reports, containers, and cross-version CI.
+import, Python and JavaScript recording SDKs, standalone reports, containers,
+and cross-version CI.
 
 ## Next engineering milestones
 
