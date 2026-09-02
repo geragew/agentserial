@@ -14,6 +14,7 @@ pytest
 python scripts/export_schemas.py --check
 python scripts/release_smoke.py
 python scripts/release_metadata.py
+python scripts/benchmark_instrumentation.py --assert-max-seconds 5
 npm ci
 npm run test:sdk
 npm run typecheck:sdk

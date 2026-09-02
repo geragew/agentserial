@@ -128,14 +128,14 @@ install command work in clean environments and reproduce the release artifacts.
 
 **Goal:** capture relevant behavior without manual event construction.
 
-- [ ] `AUTO-001` Define decorators and context managers for agents and tools.
-- [ ] `AUTO-002` Add wrappers for HTTP requests and responses.
-- [ ] `AUTO-003` Add wrappers for database reads and writes.
-- [ ] `AUTO-004` Propagate run and correlation context across async boundaries.
-- [ ] `AUTO-005` Add configurable payload redaction and size limits.
-- [ ] `AUTO-006` Detect duplicate instrumentation and prevent duplicate events.
-- [ ] `AUTO-007` Benchmark runtime, memory, and serialized-size overhead.
-- [ ] `AUTO-008` Define backpressure, buffering, flush, retry, and shutdown
+- [x] `AUTO-001` Define decorators and context managers for agents and tools.
+- [x] `AUTO-002` Add wrappers for HTTP requests and responses.
+- [x] `AUTO-003` Add wrappers for database reads and writes.
+- [x] `AUTO-004` Propagate run and correlation context across async boundaries.
+- [x] `AUTO-005` Add configurable payload redaction and size limits.
+- [x] `AUTO-006` Detect duplicate instrumentation and prevent duplicate events.
+- [x] `AUTO-007` Benchmark runtime, memory, and serialized-size overhead.
+- [x] `AUTO-008` Define backpressure, buffering, flush, retry, and shutdown
   guarantees for process failure and high-volume capture.
 - [ ] `AUTO-009` Test deterministic deduplication across process and transport
   retries without suppressing distinct operations.

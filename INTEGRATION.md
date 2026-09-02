@@ -112,6 +112,64 @@ recorder.order("policy-check", "purchase-a")
 
 Pass `overwrite=True` only when replacing an existing trace intentionally.
 
+## Automatic Python instrumentation
+
+`Instrumentor` wraps synchronous and asynchronous operations while preserving
+the recorder's atomic success/failure behavior. IDs remain producer-defined and
+deterministic; AgentSerial never derives identity or causality from timing.
+
+```python
+from agentserial import Instrumentor, TraceRecorder
+
+recorder = TraceRecorder("events.jsonl", "payment-run", {"balance": (1000, 0)})
+instrument = Instrumentor(recorder)
+
+def map_request(operation, call):
+    operation.read("balance", call.kwargs["observed_balance"], call.kwargs["version"])
+
+def map_response(operation, call, response):
+    if response["accepted"]:
+        operation.effect("increment", "balance", -call.kwargs["amount"])
+
+@instrument.http(
+    lambda payment_id, **_: f"charge-{payment_id}",
+    "billing-agent",
+    request=map_request,
+    response=map_response,
+)
+def charge(payment_id, *, amount, observed_balance, version, authorization):
+    return payment_provider.charge(payment_id, amount, authorization)
+```
+
+Use `operation`, `tool`, `http`, or `database` according to the integration
+boundary. HTTP and database wrappers do not infer reads or effects. Their mapping
+hooks must add only facts guaranteed by the producer. Omitting a mapping hook
+records the operation lifecycle but makes no claim about state access or effects.
+
+`current_operation()` exposes the active capture to nested coroutines and tasks
+through `ContextVar`. Applying the same wrapper recursively joins the active
+capture instead of emitting duplicate operations. Distinct decorated functions
+remain distinct operations and therefore require unique IDs.
+
+Call arguments and results exposed to mapping hooks are copied into a JSON-safe
+shape. Keys containing `api_key`, `authorization`, `cookie`, `password`,
+`secret`, or `token` are replaced with `[REDACTED]` by default. Unsupported
+objects become a type marker rather than invoking `repr`, which could leak data.
+`InstrumentationPolicy` configures the key list, replacement, and payload limit.
+The wrapped function still receives its original unmodified arguments.
+
+Instrumentation is fail-closed: invalid identity, oversized mapped payload, or a
+mapping exception prevents a successful capture and is raised to the caller.
+After a wrapped function has produced an external side effect, the application
+must treat a subsequent mapping error as a failed trace and must not verify or
+publish that incomplete trace.
+
+The recorder uses synchronous file writes. Each completed operation is one
+locked, flushed-on-close batch, so producers receive natural backpressure and no
+background queue can be lost at shutdown. It deliberately performs no automatic
+retry: retrying without a producer-stable operation ID could duplicate effects.
+Cross-process retry deduplication remains outside the v0.1 recorder contract.
+
 ## JavaScript runtime recorder
 
 The typed ESM SDK under `sdk/javascript` implements the same atomic lifecycle

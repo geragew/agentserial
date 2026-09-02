@@ -109,6 +109,11 @@ Both SDKs emit the same strict JSONL lifecycle. Successful operations are
 written atomically; failed callbacks record failure and discard buffered
 effects. See [INTEGRATION.md](INTEGRATION.md) for the protocol and guarantees.
 
+Python applications can also use `Instrumentor` decorators for synchronous and
+asynchronous functions, tools, HTTP clients, and database boundaries. Mapping
+hooks make state semantics explicit while call data is bounded and sensitive
+keys are redacted before hooks receive it.
+
 ## HTTP API
 
 The HTTP API is included in the standard installation and exposes the same
