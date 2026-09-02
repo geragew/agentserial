@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1",
+  "history_id": "inventory-race",
+  "initial_state": {"inventory": {"value": 1, "version": 0}},
+  "operations": [
+    {
+      "id": "buy-a",
+      "agent": "agent-a",
+      "reads": [{"resource": "inventory", "value": 1, "version": 0}],
+      "effects": [{"type": "increment", "resource": "inventory", "value": -1}]
+    },
+    {
+      "id": "buy-b",
+      "agent": "agent-b",
+      "reads": [{"resource": "inventory", "value": 1, "version": 0}],
+      "effects": [{"type": "increment", "resource": "inventory", "value": -1}]
+    }
+  ],
+  "order": []
+}
+

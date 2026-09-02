@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "history_id": "double-booking",
+  "initial_state": {"reserved_seats": {"value": [], "version": 0}},
+  "operations": [
+    {
+      "id": "reserve-a",
+      "agent": "agent-a",
+      "effects": [{"type": "append", "resource": "reserved_seats", "value": "A12"}]
+    },
+    {
+      "id": "reserve-b",
+      "agent": "agent-b",
+      "effects": [{"type": "append", "resource": "reserved_seats", "value": "A12"}]
+    }
+  ],
+  "order": []
+}
+

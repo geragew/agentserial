@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1",
+  "history_id": "safe-parallel",
+  "initial_state": {
+    "budget": {"value": 1000, "version": 0},
+    "spends": {"value": [], "version": 0}
+  },
+  "operations": [
+    {
+      "id": "spend-a",
+      "agent": "agent-a",
+      "reads": [{"resource": "budget", "value": 1000, "version": 0}],
+      "effects": [{"type": "append", "resource": "spends", "value": 300}]
+    },
+    {
+      "id": "spend-b",
+      "agent": "agent-b",
+      "reads": [{"resource": "budget", "value": 1000, "version": 0}],
+      "effects": [{"type": "append", "resource": "spends", "value": 200}]
+    }
+  ],
+  "order": []
+}
+

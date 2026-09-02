@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AgentSerial checks parallel AI-agent effect histories against global contracts.">
+  <title>AgentSerial — Correctness for parallel agent effects</title>
+  <link rel="icon" href="assets/agentserial-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.dataset.theme=localStorage.getItem("agentserial-theme")||((window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");</script>
+</head>
+<body>
+  <div class="site" id="site">
+    <header class="site-header">
+      <a class="brand" href="#home" aria-label="AgentSerial home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M3 7h8l5 7 5-7h8M3 25h8l5-7 5 7h8"/>
+          <path class="brand-conflict" d="M13 16h6"/>
+        </svg>
+        <span>AgentSerial</span>
+      </a>
+      <nav class="site-nav" aria-label="Project navigation">
+        <a href="SPEC.md">Spec</a>
+        <a href="README.md">Docs</a>
+        <button class="theme-toggle" data-theme-toggle aria-label="Alternar tema escuro" title="Alternar tema escuro"><span>◐</span></button>
+        <a href="#workspace" class="nav-action">Open workspace</a>
+      </nav>
+    </header>
+
+    <main class="home" id="homeView">
+      <section class="home-hero">
+        <div class="hero-copy">
+          <p class="section-label">CORREÇÃO / EFEITOS PARALELOS DE AGENTES</p>
+          <h1>Agentes podem acertar sozinhos<br>e falhar juntos.</h1>
+          <p class="hero-deck">AgentSerial verifica se ações paralelas de agentes preservam as regras globais do sistema — e mostra a menor sequência necessária para explicar uma falha.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#workspace">Abrir demonstração</a>
+            <a class="button button-quiet download-button" href="downloads/AgentSerial-v0.1.0.zip" download>Baixar projeto .ZIP</a>
+            <a class="button button-quiet" href="SPEC.md">Ler especificação</a>
+          </div>
+        </div>
+        <div class="hero-terminal" aria-label="AgentSerial terminal demonstration">
+          <div class="terminal-head"><span>LOCAL / AGENTSERIAL</span><span>v0.1.0</span></div>
+          <pre><span class="terminal-prompt">$</span> agentserial check overspend.json --contract contract.yaml
+
+Checking execution history
+Building ordering constraints       <span class="terminal-ok">DONE</span>
+Evaluating global contract          <span class="terminal-ok">DONE</span>
+Searching valid orderings           <span class="terminal-fail">NONE</span>
+
+<span class="terminal-fail">CONTRACT VIOLATION</span>
+No contract-valid ordering found.
+Reduced counterexample: 4 operations.</pre>
+        </div>
+      </section>
+
+      <section class="problem-synopsis">
+        <div class="synopsis-heading"><p class="section-label">O PROBLEMA QUE ELE RESOLVE</p><h2>Sucesso individual não é uma garantia do sistema.</h2></div>
+        <div class="synopsis-copy"><p>Quando agentes trabalham em paralelo, eles podem ler o mesmo orçamento, reservar o mesmo recurso, agir com uma permissão revogada ou atualizar partes incompatíveis de uma configuração. Cada tarefa termina com sucesso; o estado combinado fica incorreto.</p><p>AgentSerial transforma o histórico dessas ações em evidência verificável. Ele testa as ordens possíveis contra um contrato global, separa falha real de histórico inconsistente e reduz o resultado a um counterexample compreensível — localmente, sem LLM e sem enviar seus dados.</p></div>
+      </section>
+
+      <section class="concept-proof" aria-label="Core AgentSerial concept">
+        <div class="agent-lane">
+          <span>AGENT_A</span><strong>SUCCESS</strong><i></i>
+        </div>
+        <div class="agent-lane">
+          <span>AGENT_B</span><strong>SUCCESS</strong><i></i>
+        </div>
+        <div class="system-result">
+          <span>GLOBAL CONTRACT</span><strong>VIOLATED</strong>
+          <p>Both agents acted on <code>budget@v41</code> before either effect was visible.</p>
+        </div>
+      </section>
+
+      <section class="principles">
+        <article><span>01</span><h2>LOCAL SUCCESS ≠ GLOBAL CORRECTNESS</h2><p>Individual validity does not establish compositional safety.</p></article>
+        <article><span>02</span><h2>CHECK THE HISTORY</h2><p>The recorded execution is evidence, not another model's opinion.</p></article>
+        <article><span>03</span><h2>REDUCE THE FAILURE</h2><p>Retain only operations sufficient to reproduce the violation.</p></article>
+        <article><span>04</span><h2>NO LLM REQUIRED</h2><p>Local, deterministic, inspectable, and reproducible checking.</p></article>
+      </section>
+      <footer class="site-footer">
+        <div><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 7h8l5 7 5-7h8M3 25h8l5-7 5 7h8"/><path class="brand-conflict" d="M13 16h6"/></svg><div><strong>AgentSerial</strong><span>Open source correctness infrastructure</span></div></div>
+        <div class="creator"><span>CRIADO POR</span><strong>GERAGEW</strong></div>
+        <nav aria-label="Creator contacts"><a href="mailto:GERAGEW@ICLOUD.COM">Email</a><a href="https://www.linkedin.com/in/geragew" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://github.com/geragew" target="_blank" rel="noreferrer">GitHub</a></nav>
+      </footer>
+    </main>
+  </div>
+
+  <div class="app-shell" id="workspaceView" hidden>
+    <header class="topbar">
+      <button class="icon-button menu-button" id="menuButton" aria-label="Open navigation" title="Open navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="brand brand-app" href="#home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M3 7h8l5 7 5-7h8M3 25h8l5-7 5 7h8"/>
+          <path class="brand-conflict" d="M13 16h6"/>
+        </svg>
+        <span>AgentSerial</span>
+      </a>
+      <div class="topbar-context">
+        <span><b>PROJECT</b> payment-agents-demo</span>
+        <span><b>ENVIRONMENT</b> local</span>
+        <span><b>VERSION</b> v0.1</span>
+      </div>
+      <div class="topbar-links">
+        <a href="README.md">Docs</a><a href="SPEC.md">Spec</a><a href="PRIOR_ART.md">Research</a>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle dark theme" title="Toggle dark theme"><span>◐</span></button>
+        <span class="engine-status"><i></i> ENGINE READY</span>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav" aria-label="Analysis views">
+        <button data-view="overview" class="active">Overview</button>
+        <button data-view="history">History <span>08</span></button>
+        <button data-view="contract">Contract</button>
+        <button data-view="counterexample">Counterexample <span>04</span></button>
+        <button data-view="runs">Runs</button>
+        <button data-view="specification">Specification</button>
+      </nav>
+      <div class="sidebar-section">
+        <p>EXAMPLES</p>
+        <button class="example-link active" data-example="overspend">Overspend</button>
+        <button class="example-link" data-example="booking">Double booking</button>
+        <button class="example-link" data-example="inventory">Inventory race</button>
+        <button class="example-link" data-example="config">Config mismatch</button>
+      </div>
+      <div class="sidebar-foot">
+        <strong>AgentSerial</strong><span>v0.1.0</span><small>LOCAL ENGINE</small>
+      </div>
+    </aside>
+    <button class="sidebar-scrim" id="sidebarScrim" aria-label="Close navigation"></button>
+
+    <main class="workspace">
+      <section class="workspace-view active" id="view-overview" data-view-panel="overview">
+        <header class="run-header">
+          <div><p class="section-label">RUN / <span id="runId">0042</span></p><h1 id="runTitle">Parallel Payment Agents</h1></div>
+          <div class="run-actions">
+            <label class="select-wrap"><span>EXAMPLE</span><select id="exampleSelect" aria-label="Select example"><option value="overspend">Overspend</option><option value="booking">Double booking</option><option value="inventory">Inventory race</option><option value="config">Config mismatch</option></select></label>
+            <button class="button button-quiet" id="loadExample">Load example</button>
+            <button class="button button-primary" id="runCheck">Run check</button>
+          </div>
+          <div class="run-verdict"><span>STATUS</span><strong id="verdict">FAILED</strong><time id="runTime">2026-08-31 21:14:08</time></div>
+        </header>
+
+        <div class="summary-strip" id="summaryStrip">
+          <div><span>AGENTS</span><strong>02</strong></div><div><span>OPERATIONS</span><strong>08</strong></div><div><span>SHARED RESOURCES</span><strong>01</strong></div><div><span>VALID SERIALIZATIONS</span><strong>00</strong></div><div><span>COUNTEREXAMPLE</span><strong>04 ops</strong></div>
+        </div>
+
+        <div class="overview-grid">
+          <section class="analysis-section timeline-section">
+            <header class="section-head"><div><span>EXECUTION TIMELINE</span><small>Observed concurrent history</small></div><div class="timeline-key"><i class="read-key"></i>READ<i class="effect-key"></i>EFFECT</div></header>
+            <div class="time-ruler"><span>TIME →</span><i></i><b>14:21:01</b><b>14:21:02</b><b>14:21:03</b></div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+
+          <aside class="violation-panel" id="violationPanel">
+            <header><span>CONTRACT VIOLATION</span><b>INV-01</b></header>
+            <h2 id="invariantText">total_spend &lt;= 1000</h2>
+            <dl><div><dt>OBSERVED</dt><dd id="observedValue">1600</dd></div><div><dt>ALLOWED</dt><dd id="allowedValue">1000</dd></div><div><dt>DIFFERENCE</dt><dd id="differenceValue">+600</dd></div></dl>
+            <div class="violation-reason"><span>REASON</span><p id="reasonText">Both agents derived their actions from <code>budget@v41</code> before either effect became visible to the other.</p></div>
+          </aside>
+        </div>
+
+        <div class="lower-grid">
+          <section class="analysis-section counterexample-preview">
+            <header class="section-head"><div><span>REDUCED COUNTEREXAMPLE</span><small id="counterSubtitle">4 operations are sufficient to reproduce this failure.</small></div><button class="text-button" data-go-view="counterexample">Inspect evidence →</button></header>
+            <div class="counter-table" id="counterPreview"></div>
+          </section>
+          <section class="analysis-section ordering-panel">
+            <header class="section-head"><div><span>ORDERING CONSTRAINTS</span><small>Feasible replay search</small></div></header>
+            <svg class="ordering-graph" viewBox="0 0 500 190" role="img" aria-label="Ordering constraint graph">
+              <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z"/></marker></defs>
+              <g class="graph-a"><circle cx="74" cy="46" r="4"/><text x="22" y="22">A.read</text><path d="M80 46H330" marker-end="url(#arrow)"/><text x="352" y="51">A.spend</text></g>
+              <g class="graph-b"><circle cx="74" cy="132" r="4"/><text x="22" y="108">B.read</text><path d="M80 132H330" marker-end="url(#arrow)"/><text x="352" y="137">B.spend</text></g>
+              <path class="shared-edge" d="M74 50V128"/><rect class="shared-node" x="28" y="75" width="92" height="28"/><text class="shared-label" x="39" y="94">budget@v41</text>
+            </svg>
+            <div class="ordering-result"><i></i><span id="orderingResult">NO CONTRACT-VALID ORDERING FOUND</span></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="workspace-view" id="view-history" data-view-panel="history">
+        <header class="page-header"><div><p class="section-label">EVIDENCE / OBSERVED EVENTS</p><h1>Execution History</h1></div><div class="filter-bar"><label>AGENT<select id="agentFilter"><option value="all">All agents</option></select></label><label>RESOURCE<select id="resourceFilter"><option value="all">All resources</option></select></label></div></header>
+        <div class="history-irony"><span>INDIVIDUAL OPERATIONS</span><strong>ALL OK</strong><i></i><span>GLOBAL RESULT</span><strong>FAILED</strong></div>
+        <div class="data-table-wrap"><table class="data-table"><thead><tr><th>TIME</th><th>AGENT</th><th>OPERATION</th><th>RESOURCE</th><th>OBSERVED</th><th>VERSION</th><th>EFFECT</th><th>STATUS</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+      </section>
+
+      <section class="workspace-view" id="view-contract" data-view-panel="contract">
+        <header class="page-header"><div><p class="section-label">CONTRACT / DECLARATIVE INVARIANTS</p><h1>Global Contract</h1></div><span class="validation-badge">VALID</span></header>
+        <div class="contract-grid">
+          <section class="code-editor"><header><span>contract.yaml</span><div class="segmented"><button class="active" data-code-mode="interpreted">Interpreted</button><button data-code-mode="raw">Raw</button></div></header><div class="code-body"><ol id="lineNumbers"></ol><pre id="contractCode"></pre></div></section>
+          <aside class="parsed-contract"><p class="section-label">PARSED CONTRACT</p><dl><div><dt>RESOURCES</dt><dd id="parsedResources">1</dd></div><div><dt>INVARIANTS</dt><dd>1</dd></div><div><dt>VALIDATION</dt><dd class="valid">VALID</dd></div><div><dt>SCHEMA</dt><dd>0.1</dd></div><div><dt>EVALUATION</dt><dd>EVERY PREFIX</dd></div></dl><div class="contract-note"><span>NO ARBITRARY EVAL</span><p>Invariant types are explicit, deterministic, and locally evaluated.</p></div></aside>
+        </div>
+      </section>
+
+      <section class="workspace-view" id="view-counterexample" data-view-panel="counterexample">
+        <header class="page-header"><div><p class="section-label">FAILURE REDUCTION / 1-MINIMAL</p><h1>Reduced Counterexample</h1></div><div class="retained-count"><span>OPERATIONS RETAINED</span><strong id="retainedCount">04 / 08</strong></div></header>
+        <div class="counter-detail" id="counterDetail"></div>
+        <div class="reduction-proof"><span>REDUCTION RESULT</span><p>Removing any one retained operation causes this reproduction predicate to stop holding.</p><strong>1-MINIMAL / DETERMINISTIC</strong></div>
+      </section>
+
+      <section class="workspace-view" id="view-runs" data-view-panel="runs">
+        <header class="page-header"><div><p class="section-label">LOCAL CHECK HISTORY</p><h1>Runs</h1></div></header>
+        <div class="data-table-wrap"><table class="data-table runs-table"><thead><tr><th>RUN</th><th>EXAMPLE</th><th>STARTED</th><th>OPERATIONS</th><th>SEARCHED</th><th>VERDICT</th></tr></thead><tbody id="runsBody"></tbody></table></div>
+      </section>
+
+      <section class="workspace-view" id="view-specification" data-view-panel="specification">
+        <header class="page-header"><div><p class="section-label">AGENTSERIAL EFFECT HISTORY FORMAT</p><h1>Specification v0.1</h1></div><a class="button button-quiet" href="SPEC.md">Open full specification</a></header>
+        <div class="spec-layout"><nav><a href="#spec-property">01 / PROPERTY</a><a href="#spec-model">02 / MODEL</a><a href="#spec-verdicts">03 / VERDICTS</a><a href="#spec-limits">04 / LIMITS</a></nav><article><section id="spec-property"><span>01</span><h2>Contract replay classification</h2><p>Enumerate feasible total orders that reproduce recorded reads, then classify whether all, some, or none preserve every invariant.</p></section><section id="spec-model"><span>02</span><h2>Explicit state and effects</h2><p>Operations are atomic. Reads include exact values and versions. Effects are deterministic transitions over modeled resources.</p></section><section id="spec-verdicts"><span>03</span><h2>Verdicts without ambiguity</h2><p><code>ROBUST_PASS</code>, <code>SCHEDULE_DEPENDENT</code>, <code>CONTRACT_FAIL</code>, and <code>INCONSISTENT_HISTORY</code> remain distinct.</p></section><section id="spec-limits"><span>04</span><h2>Bounded evidence</h2><p>Results apply only to the recorded instrumentation boundary. Search exhaustion is inconclusive, never a contract failure.</p></section></article></div>
+      </section>
+    </main>
+
+    <aside class="detail-drawer" id="detailDrawer" aria-hidden="true">
+      <header><div><span>OPERATION INSPECTOR</span><strong id="drawerTitle">op-a-read</strong></div><button class="icon-button" id="closeDrawer" aria-label="Close inspector" title="Close inspector">×</button></header>
+      <div class="drawer-tabs"><button class="active" data-drawer-mode="interpreted">Interpreted</button><button data-drawer-mode="raw">Raw event</button></div>
+      <div id="drawerContent"></div>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

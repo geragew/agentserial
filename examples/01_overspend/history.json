@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "history_id": "overspend",
+  "initial_state": {
+    "budget": {"value": 1000, "version": 0},
+    "spends": {"value": [], "version": 0}
+  },
+  "operations": [
+    {
+      "id": "spend-a",
+      "agent": "agent-a",
+      "status": "success",
+      "reads": [{"resource": "budget", "value": 1000, "version": 0}],
+      "effects": [{"type": "append", "resource": "spends", "value": 800}]
+    },
+    {
+      "id": "spend-b",
+      "agent": "agent-b",
+      "status": "success",
+      "reads": [{"resource": "budget", "value": 1000, "version": 0}],
+      "effects": [{"type": "append", "resource": "spends", "value": 800}]
+    }
+  ],
+  "order": []
+}
+

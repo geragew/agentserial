@@ -1,0 +1,6 @@
+version: "0.1"
+invariants:
+  - id: matching-revisions
+    type: equals
+    left: auth_revision
+    right: deployment_revision

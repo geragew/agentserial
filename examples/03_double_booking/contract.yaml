@@ -1,0 +1,6 @@
+version: "0.1"
+invariants:
+  - id: one-reservation-per-seat
+    type: unique
+    resource: reserved_seats
+

@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "history_id": "schedule-dependent-balance",
+  "initial_state": {"balance": {"value": 0, "version": 0}},
+  "operations": [
+    {
+      "id": "credit",
+      "agent": "agent-a",
+      "effects": [{"type": "increment", "resource": "balance", "value": 1}]
+    },
+    {
+      "id": "debit",
+      "agent": "agent-b",
+      "effects": [{"type": "increment", "resource": "balance", "value": -1}]
+    }
+  ],
+  "order": []
+}
+

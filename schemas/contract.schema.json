@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "EqualsInvariant": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "left": {
+          "minLength": 1,
+          "title": "Left",
+          "type": "string"
+        },
+        "right": {
+          "minLength": 1,
+          "title": "Right",
+          "type": "string"
+        },
+        "type": {
+          "const": "equals",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "left",
+        "right"
+      ],
+      "title": "EqualsInvariant",
+      "type": "object"
+    },
+    "MaxSumInvariant": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "max": {
+          "title": "Max",
+          "type": "number"
+        },
+        "resource": {
+          "minLength": 1,
+          "title": "Resource",
+          "type": "string"
+        },
+        "type": {
+          "const": "max_sum",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "resource",
+        "max"
+      ],
+      "title": "MaxSumInvariant",
+      "type": "object"
+    },
+    "MinValueInvariant": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "min": {
+          "title": "Min",
+          "type": "number"
+        },
+        "resource": {
+          "minLength": 1,
+          "title": "Resource",
+          "type": "string"
+        },
+        "type": {
+          "const": "min_value",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "resource",
+        "min"
+      ],
+      "title": "MinValueInvariant",
+      "type": "object"
+    },
+    "UniqueInvariant": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "resource": {
+          "minLength": 1,
+          "title": "Resource",
+          "type": "string"
+        },
+        "type": {
+          "const": "unique",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "resource"
+      ],
+      "title": "UniqueInvariant",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "invariants": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "equals": "#/$defs/EqualsInvariant",
+            "max_sum": "#/$defs/MaxSumInvariant",
+            "min_value": "#/$defs/MinValueInvariant",
+            "unique": "#/$defs/UniqueInvariant"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/MaxSumInvariant"
+          },
+          {
+            "$ref": "#/$defs/MinValueInvariant"
+          },
+          {
+            "$ref": "#/$defs/UniqueInvariant"
+          },
+          {
+            "$ref": "#/$defs/EqualsInvariant"
+          }
+        ]
+      },
+      "minItems": 1,
+      "title": "Invariants",
+      "type": "array"
+    },
+    "version": {
+      "const": "0.1",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "version",
+    "invariants"
+  ],
+  "title": "Contract",
+  "type": "object"
+}

@@ -1,0 +1,7 @@
+version: "0.1"
+invariants:
+  - id: max-budget
+    type: max_sum
+    resource: spends
+    max: 1000
+

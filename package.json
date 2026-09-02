@@ -1,0 +1,12 @@
+{
+  "name": "agentserial-media-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node scripts/capture-media.mjs",
+    "test:ui": "node scripts/test-ui.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

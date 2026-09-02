@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentserial"
+version = "0.1.0"
+description = "Correctness classification for parallel AI-agent effect histories"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "GERAGEW", email = "GERAGEW@ICLOUD.COM"}]
+dependencies = [
+  "pydantic>=2.8,<3",
+  "PyYAML>=6.0,<7",
+  "rich>=13.7,<15",
+  "typer>=0.12,<1",
+]
+
+[project.optional-dependencies]
+dev = ["build>=1.2,<2", "pytest>=8.2,<10"]
+
+[project.scripts]
+agentserial = "agentserial.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentserial"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

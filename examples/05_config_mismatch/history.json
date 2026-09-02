@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1",
+  "history_id": "config-mismatch",
+  "initial_state": {
+    "auth_revision": {"value": 0, "version": 0},
+    "deployment_revision": {"value": 0, "version": 0}
+  },
+  "operations": [
+    {
+      "id": "migration-a",
+      "agent": "agent-a",
+      "effects": [
+        {"type": "increment", "resource": "auth_revision", "value": 1},
+        {"type": "set", "resource": "deployment_revision", "value": 1}
+      ]
+    },
+    {
+      "id": "migration-b",
+      "agent": "agent-b",
+      "effects": [
+        {"type": "set", "resource": "auth_revision", "value": 1},
+        {"type": "increment", "resource": "deployment_revision", "value": 1}
+      ]
+    }
+  ],
+  "order": []
+}

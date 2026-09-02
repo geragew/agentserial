@@ -1,0 +1,9 @@
+{"event":"history","history_id":"jsonl-schedule-dependent","schema_version":"0.1"}
+{"event":"resource","resource":"balance","value":0,"version":0}
+{"event":"operation_start","operation":"credit","agent":"billing-agent"}
+{"event":"effect","operation":"credit","type":"increment","resource":"balance","value":10}
+{"event":"operation_end","operation":"credit","status":"success"}
+{"event":"operation_start","operation":"debit","agent":"purchase-agent"}
+{"event":"effect","operation":"debit","type":"increment","resource":"balance","value":-8}
+{"event":"operation_end","operation":"debit","status":"success"}
+

@@ -1,0 +1,7 @@
+version: "0.1"
+invariants:
+  - id: non-negative-inventory
+    type: min_value
+    resource: inventory
+    min: 0
+
