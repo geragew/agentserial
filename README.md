@@ -159,7 +159,7 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.2.0`) intended for research,
+AgentSerial is an early open-source release (`v0.2.1`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.
@@ -171,6 +171,14 @@ Created by **GERAGEW**.
 - [GitHub](https://github.com/geragew)
 - [LinkedIn](https://www.linkedin.com/in/geragew)
 - [GERAGEW@ICLOUD.COM](mailto:GERAGEW@ICLOUD.COM)
+
+## License and attribution
+
+Copyright (c) 2026 **GERAGEW**. AgentSerial is available under the MIT License,
+so commercial and private use, modification, and redistribution are permitted.
+Redistributed copies or substantial portions of the software must retain the
+copyright notice and MIT permission notice in [LICENSE](LICENSE). See
+[NOTICE](NOTICE) for the project attribution record.
 
 ## Research and prior art
 

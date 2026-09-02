@@ -28,14 +28,14 @@ app = FastAPI(
         "their feasible execution orders. The API is deterministic and does not "
         "call an LLM or external service."
     ),
-    version="0.2.0",
+    version="0.2.1",
     license_info={"name": "MIT", "identifier": "MIT"},
 )
 
 
 @app.get("/health", tags=["operations"])
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": "0.2.1"}
 
 
 @app.post("/v1/validate", response_model=ValidationResponse, tags=["analysis"])
