@@ -1,0 +1,335 @@
+{
+  "$defs": {
+    "EffectEventMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "type": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "value": {
+          "$ref": "#/$defs/ValueSource"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "resource",
+        "value"
+      ],
+      "title": "EffectEventMapping",
+      "type": "object"
+    },
+    "OperationMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "default_status": {
+          "default": "success",
+          "enum": [
+            "success",
+            "failure"
+          ],
+          "title": "Default Status",
+          "type": "string"
+        },
+        "failure_values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Failure Values",
+          "type": "array"
+        },
+        "id": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "predecessors": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "success_values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Success Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "agent"
+      ],
+      "title": "OperationMapping",
+      "type": "object"
+    },
+    "ReadEventMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "value": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "version": {
+          "$ref": "#/$defs/ValueSource"
+        }
+      },
+      "required": [
+        "name",
+        "resource",
+        "value",
+        "version"
+      ],
+      "title": "ReadEventMapping",
+      "type": "object"
+    },
+    "ResourceEventMapping": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "resource": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "value": {
+          "$ref": "#/$defs/ValueSource"
+        },
+        "version": {
+          "$ref": "#/$defs/ValueSource"
+        }
+      },
+      "required": [
+        "name",
+        "resource",
+        "value",
+        "version"
+      ],
+      "title": "ResourceEventMapping",
+      "type": "object"
+    },
+    "ValueSource": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "source": {
+          "enum": [
+            "literal",
+            "resource_attribute",
+            "span_attribute",
+            "span_field",
+            "span_links",
+            "span_status",
+            "event_attribute"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "ValueSource",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "effect_event": {
+      "$ref": "#/$defs/EffectEventMapping"
+    },
+    "history_id": {
+      "$ref": "#/$defs/ValueSource"
+    },
+    "operation": {
+      "$ref": "#/$defs/OperationMapping"
+    },
+    "read_event": {
+      "$ref": "#/$defs/ReadEventMapping"
+    },
+    "resource_event": {
+      "$ref": "#/$defs/ResourceEventMapping"
+    },
+    "version": {
+      "const": "0.1",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "version",
+    "history_id",
+    "operation",
+    "resource_event",
+    "read_event",
+    "effect_event"
+  ],
+  "title": "OtelMapping",
+  "type": "object"
+}

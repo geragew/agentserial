@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from agentserial.models import Contract, History
+from agentserial.otel_mapping import OtelMapping
 
 ROOT = Path(__file__).parents[1]
 
@@ -13,6 +14,7 @@ def rendered_schemas() -> dict[Path, str]:
     return {
         ROOT / "schemas" / "history.schema.json": _render(History.model_json_schema()),
         ROOT / "schemas" / "contract.schema.json": _render(Contract.model_json_schema()),
+        ROOT / "schemas" / "otel-mapping.schema.json": _render(OtelMapping.model_json_schema()),
     }
 
 

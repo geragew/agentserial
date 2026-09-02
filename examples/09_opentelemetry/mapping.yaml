@@ -1,0 +1,53 @@
+version: "0.1"
+history_id:
+  source: resource_attribute
+  key: agentserial.history.id
+operation:
+  id:
+    source: span_attribute
+    key: agentserial.operation.id
+  agent:
+    source: span_attribute
+    key: agentserial.agent.id
+  status:
+    source: span_attribute
+    key: agentserial.operation.status
+  success_values: [success]
+  failure_values: [failure]
+  default_status: success
+  predecessors:
+    source: span_attribute
+    key: agentserial.order.after
+resource_event:
+  name: agentserial.resource
+  resource:
+    source: event_attribute
+    key: agentserial.resource.name
+  value:
+    source: event_attribute
+    key: agentserial.resource.value
+  version:
+    source: event_attribute
+    key: agentserial.resource.version
+read_event:
+  name: agentserial.read
+  resource:
+    source: event_attribute
+    key: agentserial.resource.name
+  value:
+    source: event_attribute
+    key: agentserial.resource.value
+  version:
+    source: event_attribute
+    key: agentserial.resource.version
+effect_event:
+  name: agentserial.effect
+  type:
+    source: event_attribute
+    key: agentserial.effect.type
+  resource:
+    source: event_attribute
+    key: agentserial.resource.name
+  value:
+    source: event_attribute
+    key: agentserial.resource.value

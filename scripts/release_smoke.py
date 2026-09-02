@@ -102,6 +102,22 @@ def main() -> int:
         )
         if "SCHEDULE_DEPENDENT" not in otel_demo.stdout:
             raise RuntimeError("installed OpenTelemetry flow returned the wrong classification")
+        mapped_history = temporary_path / "mapped-otel-history.json"
+        mapping_diagnostics = temporary_path / "mapped-otel-diagnostics.json"
+        run(
+            str(cli),
+            "import-otel",
+            str(ROOT / "examples" / "09_opentelemetry" / "traces.json"),
+            "--mapping",
+            str(ROOT / "examples" / "09_opentelemetry" / "mapping.yaml"),
+            "--diagnostics",
+            str(mapping_diagnostics),
+            "--output",
+            str(mapped_history),
+        )
+        diagnostics = mapping_diagnostics.read_text(encoding="utf-8")
+        if '"spans_mapped": 2' not in diagnostics or '"events_mapped": 3' not in diagnostics:
+            raise RuntimeError("installed generic OpenTelemetry mapping returned incomplete diagnostics")
         report = temporary_path / "agentserial-report.html"
         run(
             str(cli),
@@ -131,6 +147,7 @@ def main() -> int:
         print("installed zero-configuration application: PASS")
         print("JSONL import and validation: PASS")
         print("OpenTelemetry import and check: PASS")
+        print("Generic OpenTelemetry mapping and diagnostics: PASS")
         print("Standalone HTML report: PASS")
         print("schedule-dependent demo: PASS")
     print(f"temporary directory removed: {not temporary_path.exists()}")

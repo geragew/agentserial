@@ -20,6 +20,7 @@ from agentserial.invariants import validate_contract_effects, validate_contract_
 from agentserial.jsonl_adapter import TraceImportError, import_jsonl
 from agentserial.models import CheckResult, VerdictStatus
 from agentserial.otel_adapter import OtelImportError, import_otlp_json
+from agentserial.otel_mapping import import_otlp_json_mapped, load_otel_mapping
 from agentserial.parsing import load_contract, load_history
 from agentserial.report import generate_report
 
@@ -155,19 +156,51 @@ def import_otel_command(
         "history.json"
     ),
     force: Annotated[bool, typer.Option("--force", help="Overwrite the output file")] = False,
+    mapping: Annotated[
+        Path | None,
+        typer.Option("--mapping", help="Declarative OpenTelemetry mapping YAML"),
+    ] = None,
+    diagnostics: Annotated[
+        Path | None,
+        typer.Option("--diagnostics", help="Write mapping lineage and loss accounting JSON"),
+    ] = None,
 ) -> None:
-    """Convert an AgentSerial-instrumented OTLP/JSON trace into a history."""
+    """Convert an OTLP/JSON trace into a history."""
     if output.exists() and not force:
         console.print(f"[red]Refusing to overwrite: {output}[/]")
         raise typer.Exit(2)
+    if diagnostics and diagnostics == output:
+        console.print("[red]Diagnostics path must differ from output path[/]")
+        raise typer.Exit(2)
+    if diagnostics and not mapping:
+        console.print("[red]--diagnostics requires --mapping[/]")
+        raise typer.Exit(2)
+    if diagnostics and diagnostics.exists() and not force:
+        console.print(f"[red]Refusing to overwrite: {diagnostics}[/]")
+        raise typer.Exit(2)
     try:
-        history = import_otlp_json(trace_path)
+        if mapping:
+            imported = import_otlp_json_mapped(trace_path, load_otel_mapping(mapping))
+            history = imported.history
+        else:
+            imported = None
+            history = import_otlp_json(trace_path)
     except OtelImportError as error:
         console.print(f"[red]{error}[/]")
         raise typer.Exit(2) from None
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(history.model_dump_json(indent=2) + "\n", encoding="utf-8")
     console.print(f"Imported {len(history.operations)} OpenTelemetry operations into {output}")
+    if imported:
+        summary = imported.diagnostics
+        console.print(
+            f"Mapping coverage: {summary.spans_mapped}/{summary.spans_seen} spans, "
+            f"{summary.events_mapped}/{summary.events_seen} events"
+        )
+        if diagnostics:
+            diagnostics.parent.mkdir(parents=True, exist_ok=True)
+            diagnostics.write_text(summary.model_dump_json(indent=2) + "\n", encoding="utf-8")
+            console.print(f"Mapping diagnostics written to {diagnostics}")
 
 
 @app.command()

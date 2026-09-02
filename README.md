@@ -162,6 +162,9 @@ The JSONL event lifecycle and integration rules are documented in
 
 OpenTelemetry users can import official OTLP/JSON trace exports using the
 documented `agentserial.*` instrumentation convention in [OTEL.md](OTEL.md).
+Existing attribute conventions can instead use a strict declarative mapping and
+an optional diagnostics sidecar that accounts for ignored spans, events, and
+attributes.
 
 ## Visual workspace
 

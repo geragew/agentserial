@@ -148,16 +148,16 @@ setup call, secrets are redacted by default, and overhead limits are published.
 **Goal:** convert existing telemetry into useful histories without requiring a
 vendor-specific trace layout.
 
-- [ ] `OTEL-001` Define a declarative mapping schema for spans and attributes.
-- [ ] `OTEL-002` Map span relationships, events, status, links, and resources.
-- [ ] `OTEL-003` Support configurable agent, operation, resource, and effect rules.
-- [ ] `OTEL-004` Validate mappings with actionable, line-specific diagnostics.
+- [x] `OTEL-001` Define a declarative mapping schema for spans and attributes.
+- [x] `OTEL-002` Map span relationships, events, status, links, and resources.
+- [x] `OTEL-003` Support configurable agent, operation, resource, and effect rules.
+- [x] `OTEL-004` Validate mappings with actionable, line-specific diagnostics.
 - [ ] `OTEL-005` Ship presets for common semantic conventions.
 - [ ] `OTEL-006` Add fixtures from multiple collectors and observability vendors.
-- [ ] `OTEL-007` Document loss of information and ambiguous mappings.
-- [ ] `OTEL-008` Preserve trace/span identity and distinguish event time from
+- [x] `OTEL-007` Document loss of information and ambiguous mappings.
+- [x] `OTEL-008` Preserve trace/span identity and distinguish event time from
   ingestion time without deriving causal order from timestamps alone.
-- [ ] `OTEL-009` Version and fingerprint mapping configurations in output lineage.
+- [x] `OTEL-009` Version and fingerprint mapping configurations in output lineage.
 
 **Acceptance criteria:** users can adapt an existing trace through configuration,
 and conversion reports every dropped or unresolved field.
