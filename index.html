@@ -35,12 +35,12 @@
           <p class="hero-deck">AgentSerial verifies whether parallel agent actions preserve system-wide rules, then reveals the smallest sequence needed to explain a failure.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="#workspace">Open live demo</a>
-            <a class="button button-quiet download-button" href="downloads/AgentSerial-v0.2.1.zip" download>Download project .ZIP</a>
+            <a class="button button-quiet download-button" href="downloads/AgentSerial-v0.3.0.zip" download>Download project .ZIP</a>
             <a class="button button-quiet" href="SPEC.md">Read specification</a>
           </div>
         </div>
         <div class="hero-terminal" aria-label="AgentSerial terminal demonstration">
-          <div class="terminal-head"><span>LOCAL / AGENTSERIAL</span><span>v0.2.1</span></div>
+          <div class="terminal-head"><span>LOCAL / AGENTSERIAL</span><span>v0.3.0</span></div>
           <pre><span class="terminal-prompt">$</span> agentserial check overspend.json --contract contract.yaml
 
 Checking execution history
@@ -127,7 +127,7 @@ Reduced counterexample: 4 operations.</pre>
         <button class="example-link" data-example="config">Config mismatch</button>
       </div>
       <div class="sidebar-foot">
-        <strong>AgentSerial</strong><span>v0.2.1</span><small>LOCAL ENGINE</small>
+        <strong>AgentSerial</strong><span>v0.3.0</span><small>LOCAL ENGINE</small>
       </div>
     </aside>
     <button class="sidebar-scrim" id="sidebarScrim" aria-label="Close navigation"></button>
@@ -139,6 +139,7 @@ Reduced counterexample: 4 operations.</pre>
           <div class="run-actions">
             <label class="select-wrap"><span>EXAMPLE</span><select id="exampleSelect" aria-label="Select example"><option value="overspend">Overspend</option><option value="booking">Double booking</option><option value="inventory">Inventory race</option><option value="config">Config mismatch</option></select></label>
             <button class="button button-quiet" id="loadExample">Load example</button>
+            <button class="button button-quiet" id="openAnalyzer">Analyze files</button>
             <button class="button button-primary" id="runCheck">Run check</button>
           </div>
           <div class="run-verdict"><span>STATUS</span><strong id="verdict">FAILED</strong><time id="runTime">2026-08-31 21:14:08</time></div>
@@ -218,6 +219,31 @@ Reduced counterexample: 4 operations.</pre>
       <div id="drawerContent"></div>
     </aside>
   </div>
+
+  <dialog class="analyzer-dialog" id="analyzerDialog">
+    <form id="analyzerForm">
+      <header>
+        <div><p class="section-label">REAL INPUT / LOCAL API</p><h2>Analyze your execution</h2></div>
+        <button class="icon-button" type="button" id="closeAnalyzer" aria-label="Close analyzer" title="Close analyzer">×</button>
+      </header>
+      <div class="analyzer-fields">
+        <label class="analyzer-wide"><span>API ENDPOINT</span><input id="apiEndpoint" type="url" value="http://127.0.0.1:8000" required></label>
+        <label><span>HISTORY</span><input id="historyFile" type="file" accept=".json,.yaml,.yml" required></label>
+        <label><span>CONTRACT</span><input id="contractFile" type="file" accept=".json,.yaml,.yml" required></label>
+        <label><span>API KEY <small>OPTIONAL</small></span><input id="apiKey" type="password" autocomplete="off"></label>
+        <label><span>OPERATION LIMIT</span><input id="operationLimit" type="number" value="10" min="1" max="100" required></label>
+      </div>
+      <div class="analyzer-actions">
+        <span id="analyzerStatus" role="status">Ready for JSON or YAML files.</span>
+        <button class="button button-primary" id="submitAnalysis" type="submit">Run analysis</button>
+      </div>
+      <section class="analyzer-result" id="analyzerResult" hidden aria-live="polite">
+        <div><span>VERDICT</span><strong id="apiVerdict">—</strong></div>
+        <dl><div><dt>OPERATIONS</dt><dd id="apiOperations">0</dd></div><div><dt>FEASIBLE</dt><dd id="apiFeasible">0</dd></div><div><dt>SAFE</dt><dd id="apiSafe">0</dd></div><div><dt>UNSAFE</dt><dd id="apiUnsafe">0</dd></div></dl>
+        <p><span>REDUCED COUNTEREXAMPLE</span><code id="apiCounterexample">None</code></p>
+      </section>
+    </form>
+  </dialog>
 
   <script src="app.js"></script>
 </body>

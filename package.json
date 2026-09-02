@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "capture": "node scripts/capture-media.mjs",
-    "test:ui": "node scripts/test-ui.mjs"
+    "test:ui": "node scripts/test-ui.mjs",
+    "test:integration": "node scripts/test-ui-api.mjs"
   },
   "devDependencies": {
     "playwright": "^1.55.0"

@@ -88,3 +88,26 @@ The importer is runtime-neutral. Framework-specific adapters should translate
 their native trace events into this JSONL lifecycle rather than bypassing the
 versioned `History` model.
 
+## Python runtime recorder
+
+`TraceRecorder` writes the same lifecycle with thread-safe, atomic operation
+batches. It buffers an operation until the context exits, preventing partial
+effect records when a provider or tool call fails.
+
+```python
+from agentserial.recorder import TraceRecorder
+
+recorder = TraceRecorder(
+    "events.jsonl",
+    history_id="payment-run-42",
+    initial_state={"spends": ([], 0)},
+)
+
+with recorder.operation("purchase-a", "buyer-agent") as operation:
+    operation.read("spends", [], 0)
+    operation.effect("append", "spends", 800)
+
+recorder.order("policy-check", "purchase-a")
+```
+
+Pass `overwrite=True` only when replacing an existing trace intentionally.

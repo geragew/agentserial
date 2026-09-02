@@ -28,6 +28,11 @@ try {
   await page.waitForTimeout(150);
   assert(await page.locator("#runTitle").innerText() === "Parallel Payment Agents", "workspace did not open");
 
+  await page.click("#openAnalyzer");
+  assert(await page.locator("#analyzerDialog").evaluate(dialog => dialog.open), "file analyzer did not open");
+  assert(await page.locator("#apiEndpoint").inputValue() === "http://127.0.0.1:8000", "API endpoint default mismatch");
+  await page.click("#closeAnalyzer");
+
   await page.selectOption("#exampleSelect", "booking");
   await page.click("#loadExample");
   assert(await page.locator("#runTitle").innerText() === "Concurrent Seat Reservation", "example selection failed");

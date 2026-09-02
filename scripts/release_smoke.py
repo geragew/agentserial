@@ -42,10 +42,13 @@ def main() -> int:
         scripts = environment / ("Scripts" if sys.platform == "win32" else "bin")
         python = scripts / ("python.exe" if sys.platform == "win32" else "python")
         cli = scripts / ("agentserial.exe" if sys.platform == "win32" else "agentserial")
-        run(str(python), "-m", "pip", "install", str(wheels[0]), "--disable-pip-version-check")
+        run(str(python), "-m", "pip", "install", f"{wheels[0]}[api]", "--disable-pip-version-check")
         help_result = run(str(cli), "--help")
         if "check" not in help_result.stdout:
             raise RuntimeError("installed CLI does not expose the check command")
+        api_import = run(str(python), "-c", "from agentserial.api import app; print(app.title)")
+        if "AgentSerial API" not in api_import.stdout:
+            raise RuntimeError("installed API extra did not expose the application")
         built_in_demo = run(str(cli), "demo")
         if "SCHEDULE_DEPENDENT" not in built_in_demo.stdout:
             raise RuntimeError("installed built-in demo returned the wrong classification")
@@ -109,6 +112,7 @@ def main() -> int:
         print(f"wheel: {wheels[0].name}")
         print(f"sdist: {sdists[0].name}")
         print("installed CLI: PASS")
+        print("installed API extra: PASS")
         print("JSONL import and validation: PASS")
         print("OpenTelemetry import and check: PASS")
         print("Standalone HTML report: PASS")

@@ -21,4 +21,11 @@ jobs:
       - run: python scripts/export_schemas.py --check
       - if: matrix.python-version == '3.14'
         run: python -m build
+      - if: matrix.python-version == '3.14'
+        run: python scripts/benchmark.py --assert-max-seconds 5
 
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t agentserial:test .

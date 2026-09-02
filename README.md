@@ -87,6 +87,7 @@ service provides:
 - `GET /health` for readiness checks.
 - `POST /v1/validate` to validate a history and contract without replaying it.
 - `POST /v1/check` to classify feasible execution orders and return evidence.
+- `POST /v1/check-files` to upload JSON or YAML history and contract files.
 
 Example request:
 
@@ -96,8 +97,23 @@ curl -X POST http://127.0.0.1:8000/v1/check -H "Content-Type: application/json" 
 
 The request body contains `history` and `contract` objects using the same schemas
 as the CLI, plus optional `max_operations` and `max_prefixes` limits. The API is
-intended for trusted internal integrations; add authentication, TLS, rate limits,
-and workload isolation before exposing it to untrusted networks.
+intended for trusted internal integrations. Operational controls are configured
+through environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `AGENTSERIAL_API_KEY` | unset | Requires `X-AgentSerial-Key` on analysis routes when set |
+| `AGENTSERIAL_MAX_BODY_BYTES` | `2000000` | Rejects oversized JSON and multipart bodies |
+| `AGENTSERIAL_TIMEOUT_SECONDS` | `30` | Bounds request processing time |
+| `AGENTSERIAL_RATE_LIMIT_PER_MINUTE` | `120` | Per-process client limit for analysis routes |
+| `AGENTSERIAL_CORS_ORIGINS` | local origins | Comma-separated browser origins |
+
+Run the hardened container locally:
+
+```console
+set AGENTSERIAL_API_KEY=replace-with-a-long-random-value
+docker compose up --build
+```
 
 The JSONL event lifecycle and integration rules are documented in
 [INTEGRATION.md](INTEGRATION.md).
@@ -120,6 +136,10 @@ Generated project media is under `media/`:
 The workspace includes a responsive inspection layout, light and dark themes,
 four real examples, and a downloadable project bundle. It works directly from
 `index.html`; no server or account is required.
+
+With `agentserial serve` running, select **Analyze files** in the workspace to
+submit real JSON or YAML documents to the local API. The browser displays the
+verdict, replay counts, and reduced counterexample without terminal commands.
 
 The visual system is explained in [DESIGN_RATIONALE.md](DESIGN_RATIONALE.md).
 
@@ -159,10 +179,27 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.2.1`) intended for research,
+AgentSerial is an early open-source release (`v0.3.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.
+
+## Runtime recording
+
+The thread-safe recorder produces the versioned JSONL lifecycle directly from an
+agent runtime:
+
+```python
+from agentserial.recorder import TraceRecorder
+
+recorder = TraceRecorder("events.jsonl", "run-42", {"budget": (1000, 0)})
+with recorder.operation("purchase-a", "buyer-agent") as operation:
+    operation.read("budget", 1000, 0)
+    operation.effect("increment", "budget", -800)
+```
+
+Import the result with `agentserial import-jsonl events.jsonl`. Failed context
+blocks are recorded as failed operations and buffered effects are discarded.
 
 ## Author
 

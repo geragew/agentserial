@@ -1,0 +1,12 @@
+.git
+.github
+.pytest_cache
+.venv
+__pycache__
+build
+dist
+downloads
+media
+node_modules
+tests
+*.pyc

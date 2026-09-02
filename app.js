@@ -288,6 +288,9 @@ function wireInteractions() {
     document.body.classList.add("checking");
     setTimeout(() => { renderExample($("#exampleSelect").value); document.body.classList.remove("checking"); }, 650);
   });
+  $("#openAnalyzer").addEventListener("click", () => $("#analyzerDialog").showModal());
+  $("#closeAnalyzer").addEventListener("click", () => $("#analyzerDialog").close());
+  $("#analyzerForm").addEventListener("submit", runFileAnalysis);
   $("#agentFilter").addEventListener("change", filterHistory);
   $("#resourceFilter").addEventListener("change", filterHistory);
   $$("[data-code-mode]").forEach(button => button.addEventListener("click", () => { contractMode = button.dataset.codeMode; $$("[data-code-mode]").forEach(item => item.classList.toggle("active", item === button)); renderContract(examples[currentKey]); }));
@@ -297,6 +300,42 @@ function wireInteractions() {
   $("#sidebarScrim").addEventListener("click", () => $("#sidebar").classList.remove("open"));
   $$('[data-theme-toggle]').forEach(button => button.addEventListener("click", toggleTheme));
   document.addEventListener("keydown", event => { if (event.key === "Escape") { closeDrawer(); $("#sidebar").classList.remove("open"); } });
+}
+
+async function runFileAnalysis(event) {
+  event.preventDefault();
+  const submit = $("#submitAnalysis");
+  const status = $("#analyzerStatus");
+  const endpoint = $("#apiEndpoint").value.replace(/\/+$/, "");
+  const history = $("#historyFile").files[0];
+  const contract = $("#contractFile").files[0];
+  const form = new FormData();
+  form.append("history", history);
+  form.append("contract", contract);
+  const headers = {};
+  if ($("#apiKey").value) headers["X-AgentSerial-Key"] = $("#apiKey").value;
+  submit.disabled = true;
+  status.textContent = "Analyzing feasible execution orders…";
+  $("#analyzerResult").hidden = true;
+  try {
+    const limit = encodeURIComponent($("#operationLimit").value);
+    const response = await fetch(`${endpoint}/v1/check-files?max_operations=${limit}`, { method: "POST", headers, body: form });
+    const result = await response.json();
+    if (!response.ok) throw new Error(typeof result.detail === "string" ? result.detail : `API returned ${response.status}`);
+    $("#apiVerdict").textContent = result.status;
+    $("#apiOperations").textContent = result.operations;
+    $("#apiFeasible").textContent = result.feasible_replays;
+    $("#apiSafe").textContent = result.safe_replays;
+    $("#apiUnsafe").textContent = result.unsafe_replays;
+    $("#apiCounterexample").textContent = result.reduced_counterexample?.join(" → ") || "None";
+    $("#analyzerResult").dataset.verdict = result.status;
+    $("#analyzerResult").hidden = false;
+    status.textContent = `Analysis complete · request ${response.headers.get("X-Request-ID") || "local"}`;
+  } catch (error) {
+    status.textContent = `Analysis failed: ${error.message}`;
+  } finally {
+    submit.disabled = false;
+  }
 }
 
 function toggleTheme() {

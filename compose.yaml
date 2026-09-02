@@ -1,0 +1,15 @@
+services:
+  agentserial:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      AGENTSERIAL_API_KEY: ${AGENTSERIAL_API_KEY:-change-me}
+      AGENTSERIAL_MAX_BODY_BYTES: 2000000
+      AGENTSERIAL_TIMEOUT_SECONDS: 30
+      AGENTSERIAL_RATE_LIMIT_PER_MINUTE: 120
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    security_opt:
+      - no-new-privileges:true

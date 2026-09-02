@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentserial"
-version = "0.2.1"
+version = "0.3.0"
 description = "Correctness classification for parallel AI-agent effect histories"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -18,11 +18,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-api = ["fastapi>=0.116,<1", "uvicorn>=0.35,<1"]
+api = ["fastapi>=0.116,<1", "python-multipart>=0.0.20,<1", "uvicorn>=0.35,<1"]
 dev = [
   "build>=1.2,<2",
   "fastapi>=0.116,<1",
   "httpx>=0.28,<1",
+  "hypothesis>=6.130,<7",
+  "python-multipart>=0.0.20,<1",
   "pytest>=8.2,<10",
   "uvicorn>=0.35,<1",
 ]

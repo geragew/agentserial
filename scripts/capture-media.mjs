@@ -30,6 +30,10 @@ try {
   await desktop.goto(`${target}#workspace/overview`);
   await desktop.waitForTimeout(300);
   await desktop.screenshot({ path: path.join(media, "workspace-overview.png"), fullPage: true });
+  await desktop.click("#openAnalyzer");
+  await desktop.waitForTimeout(180);
+  await desktop.screenshot({ path: path.join(media, "analyze-files.png") });
+  await desktop.click("#closeAnalyzer");
   await desktop.click('[data-view="history"]');
   await desktop.click('#historyBody tr:nth-child(3)');
   await desktop.waitForTimeout(180);
@@ -102,6 +106,9 @@ try {
   await page.waitForTimeout(1100);
   await page.click("#runCheck");
   await page.waitForTimeout(1700);
+  await page.click("#openAnalyzer");
+  await page.waitForTimeout(1500);
+  await page.click("#closeAnalyzer");
   healthy();
   videoPath = await video.path();
   await page.close();
@@ -117,6 +124,7 @@ if (path.resolve(videoPath) !== path.resolve(finalVideo)) await unlink(videoPath
 console.log("Captured:");
 console.log("  media/home-desktop.png");
 console.log("  media/workspace-overview.png");
+console.log("  media/analyze-files.png");
 console.log("  media/workspace-history-inspector.png");
 console.log("  media/workspace-tablet.png");
 console.log("  media/workspace-1365x768.png");
