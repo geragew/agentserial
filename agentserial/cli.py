@@ -37,6 +37,21 @@ def demo() -> None:
     render(check(history, contract), console)
 
 
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Interface to bind the API server to")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port for the API server", min=1, max=65535)] = 8000,
+) -> None:
+    """Run the optional AgentSerial HTTP API."""
+    try:
+        import uvicorn
+    except ImportError:
+        console.print('[red]API dependencies are not installed. Run: pip install "agentserial[api]"[/]')
+        raise typer.Exit(2)
+    console.print(f"AgentSerial API: http://{host}:{port} (docs: /docs)")
+    uvicorn.run("agentserial.api:app", host=host, port=port)
+
+
 @app.command("init")
 def initialize(
     directory: Annotated[Path, typer.Argument(help="Directory for starter files")] = Path("agentserial-starter"),

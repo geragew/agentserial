@@ -22,7 +22,7 @@
       <nav class="site-nav" aria-label="Project navigation">
         <a href="SPEC.md">Spec</a>
         <a href="README.md">Docs</a>
-        <button class="theme-toggle" data-theme-toggle aria-label="Alternar tema escuro" title="Alternar tema escuro"><span>◐</span></button>
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme" title="Switch to dark theme"><span>◐</span></button>
         <a href="#workspace" class="nav-action">Open workspace</a>
       </nav>
     </header>
@@ -30,17 +30,17 @@
     <main class="home" id="homeView">
       <section class="home-hero">
         <div class="hero-copy">
-          <p class="section-label">CORREÇÃO / EFEITOS PARALELOS DE AGENTES</p>
-          <h1>Agentes podem acertar sozinhos<br>e falhar juntos.</h1>
-          <p class="hero-deck">AgentSerial verifica se ações paralelas de agentes preservam as regras globais do sistema — e mostra a menor sequência necessária para explicar uma falha.</p>
+          <p class="section-label">CORRECTNESS / PARALLEL AGENT EFFECTS</p>
+          <h1>Every agent can succeed<br>while the system fails.</h1>
+          <p class="hero-deck">AgentSerial verifies whether parallel agent actions preserve system-wide rules, then reveals the smallest sequence needed to explain a failure.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#workspace">Abrir demonstração</a>
-            <a class="button button-quiet download-button" href="downloads/AgentSerial-v0.1.0.zip" download>Baixar projeto .ZIP</a>
-            <a class="button button-quiet" href="SPEC.md">Ler especificação</a>
+            <a class="button button-primary" href="#workspace">Open live demo</a>
+            <a class="button button-quiet download-button" href="downloads/AgentSerial-v0.2.0.zip" download>Download project .ZIP</a>
+            <a class="button button-quiet" href="SPEC.md">Read specification</a>
           </div>
         </div>
         <div class="hero-terminal" aria-label="AgentSerial terminal demonstration">
-          <div class="terminal-head"><span>LOCAL / AGENTSERIAL</span><span>v0.1.0</span></div>
+          <div class="terminal-head"><span>LOCAL / AGENTSERIAL</span><span>v0.2.0</span></div>
           <pre><span class="terminal-prompt">$</span> agentserial check overspend.json --contract contract.yaml
 
 Checking execution history
@@ -55,8 +55,8 @@ Reduced counterexample: 4 operations.</pre>
       </section>
 
       <section class="problem-synopsis">
-        <div class="synopsis-heading"><p class="section-label">O PROBLEMA QUE ELE RESOLVE</p><h2>Sucesso individual não é uma garantia do sistema.</h2></div>
-        <div class="synopsis-copy"><p>Quando agentes trabalham em paralelo, eles podem ler o mesmo orçamento, reservar o mesmo recurso, agir com uma permissão revogada ou atualizar partes incompatíveis de uma configuração. Cada tarefa termina com sucesso; o estado combinado fica incorreto.</p><p>AgentSerial transforma o histórico dessas ações em evidência verificável. Ele testa as ordens possíveis contra um contrato global, separa falha real de histórico inconsistente e reduz o resultado a um counterexample compreensível — localmente, sem LLM e sem enviar seus dados.</p></div>
+        <div class="synopsis-heading"><p class="section-label">THE PROBLEM IT SOLVES</p><h2>Individual success is not a system guarantee.</h2></div>
+        <div class="synopsis-copy"><p>When agents work in parallel, they may read the same budget, reserve the same resource, act on revoked permission, or update incompatible parts of a configuration. Every task completes successfully while the combined state becomes invalid.</p><p>AgentSerial turns that action history into verifiable evidence. It checks feasible orders against a global contract, separates real violations from inconsistent histories, and reduces the result to an understandable counterexample, locally and without sending your data anywhere.</p></div>
       </section>
 
       <section class="concept-proof" aria-label="Core AgentSerial concept">
@@ -80,7 +80,7 @@ Reduced counterexample: 4 operations.</pre>
       </section>
       <footer class="site-footer">
         <div><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 7h8l5 7 5-7h8M3 25h8l5-7 5 7h8"/><path class="brand-conflict" d="M13 16h6"/></svg><div><strong>AgentSerial</strong><span>Open source correctness infrastructure</span></div></div>
-        <div class="creator"><span>CRIADO POR</span><strong>GERAGEW</strong></div>
+        <div class="creator"><span>CREATED BY</span><strong>GERAGEW</strong></div>
         <nav aria-label="Creator contacts"><a href="mailto:GERAGEW@ICLOUD.COM">Email</a><a href="https://www.linkedin.com/in/geragew" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://github.com/geragew" target="_blank" rel="noreferrer">GitHub</a></nav>
       </footer>
     </main>
@@ -127,7 +127,7 @@ Reduced counterexample: 4 operations.</pre>
         <button class="example-link" data-example="config">Config mismatch</button>
       </div>
       <div class="sidebar-foot">
-        <strong>AgentSerial</strong><span>v0.1.0</span><small>LOCAL ENGINE</small>
+        <strong>AgentSerial</strong><span>v0.2.0</span><small>LOCAL ENGINE</small>
       </div>
     </aside>
     <button class="sidebar-scrim" id="sidebarScrim" aria-label="Close navigation"></button>

@@ -5,9 +5,10 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 
 ROOT = Path(__file__).parents[1]
-OUTPUT = ROOT / "downloads" / "AgentSerial-v0.1.0.zip"
+OUTPUT = ROOT / "downloads" / "AgentSerial-v0.2.0.zip"
 EXCLUDED_PARTS = {
     ".pytest_cache",
+    ".git",
     "__pycache__",
     "agentserial.egg-info",
     "build",
@@ -31,7 +32,7 @@ def main() -> int:
     )
     with ZipFile(OUTPUT, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
         for path in files:
-            archive.write(path, Path("AgentSerial-v0.1.0") / path.relative_to(ROOT))
+            archive.write(path, Path("AgentSerial-v0.2.0") / path.relative_to(ROOT))
     print(f"created: {OUTPUT.relative_to(ROOT)}")
     print(f"files: {len(files)}")
     print(f"bytes: {OUTPUT.stat().st_size}")
@@ -40,4 +41,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

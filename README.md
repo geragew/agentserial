@@ -71,6 +71,34 @@ agentserial check history.json --contract contract.yaml
 agentserial report history.json --contract contract.yaml --output report.html
 ```
 
+## HTTP API
+
+The optional HTTP API exposes the same deterministic checker used by the CLI.
+Install and run it with:
+
+```console
+python -m pip install -e ".[api]"
+agentserial serve
+```
+
+Open `http://127.0.0.1:8000/docs` for interactive OpenAPI documentation. The
+service provides:
+
+- `GET /health` for readiness checks.
+- `POST /v1/validate` to validate a history and contract without replaying it.
+- `POST /v1/check` to classify feasible execution orders and return evidence.
+
+Example request:
+
+```console
+curl -X POST http://127.0.0.1:8000/v1/check -H "Content-Type: application/json" --data @request.json
+```
+
+The request body contains `history` and `contract` objects using the same schemas
+as the CLI, plus optional `max_operations` and `max_prefixes` limits. The API is
+intended for trusted internal integrations; add authentication, TLS, rate limits,
+and workload isolation before exposing it to untrusted networks.
+
 The JSONL event lifecycle and integration rules are documented in
 [INTEGRATION.md](INTEGRATION.md).
 
@@ -131,7 +159,7 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.1.0`) intended for research,
+AgentSerial is an early open-source release (`v0.2.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.

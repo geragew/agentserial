@@ -17,7 +17,7 @@ try {
   page.on("pageerror", error => errors.push(error.message));
   page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
   await page.goto(target);
-  assert(await page.locator("h1").first().innerText() === "Agentes podem acertar sozinhos\ne falhar juntos.", "home headline mismatch");
+  assert(await page.locator("h1").first().innerText() === "Every agent can succeed\nwhile the system fails.", "home headline mismatch");
   await page.click('[data-theme-toggle]');
   assert(await page.locator("html").getAttribute("data-theme") === "dark", "dark theme did not activate");
   await page.reload();

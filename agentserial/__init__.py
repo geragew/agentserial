@@ -4,5 +4,4 @@ from agentserial.checker import check
 from agentserial.models import VerdictStatus
 
 __all__ = ["VerdictStatus", "check"]
-__version__ = "0.1.0"
-
+__version__ = "0.2.0"

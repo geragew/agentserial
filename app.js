@@ -309,8 +309,8 @@ function toggleTheme() {
 function syncThemeControls() {
   const dark = document.documentElement.dataset.theme === "dark";
   $$('[data-theme-toggle]').forEach(button => {
-    button.setAttribute("aria-label", dark ? "Ativar tema claro" : "Ativar tema escuro");
-    button.setAttribute("title", dark ? "Ativar tema claro" : "Ativar tema escuro");
+    button.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    button.setAttribute("title", dark ? "Switch to light theme" : "Switch to dark theme");
   });
 }
 

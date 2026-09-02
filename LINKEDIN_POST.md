@@ -2,59 +2,60 @@
 
 ## Main version
 
-E se todos os agentes de IA concluírem suas tarefas com sucesso, mas o sistema
-como um todo ainda falhar?
+What if every AI agent completes its task successfully, but the system as a
+whole still fails?
 
-Esse foi o problema que me levou a criar o **AgentSerial**, um projeto open
-source para analisar os efeitos de agentes executados em paralelo.
+That question led me to build **AgentSerial**, an open-source correctness checker
+for the combined effects of AI agents running in parallel.
 
-Dois agentes podem tomar decisões localmente corretas e, juntos, estourar um
-orçamento, duplicar uma reserva ou deixar o sistema em um estado inválido. Os
-logs tradicionais mostram que cada tarefa terminou. O AgentSerial verifica se o
-resultado global continua correto em todas as ordens de execução possíveis.
+Two agents can make locally valid decisions and still exceed a shared budget,
+double-book a resource, or leave the system in an invalid state. Traditional
+logs tell us that each task completed. AgentSerial checks whether the global
+result remains correct across every feasible execution order.
 
-O projeto:
+The project:
 
-- importa históricos em JSONL e traces OpenTelemetry;
-- valida regras globais declaradas em contrato;
-- identifica falhas que dependem da ordem de execução;
-- reduz o problema ao menor contraexemplo compreensível;
-- gera um relatório HTML com as evidências;
-- funciona localmente, sem API key e sem depender de outro modelo de IA.
+- imports JSONL histories and OpenTelemetry traces;
+- validates system-wide rules declared as contracts;
+- detects failures that depend on execution order;
+- reduces a failure to the smallest understandable counterexample;
+- generates standalone HTML evidence reports;
+- provides both a CLI and an optional HTTP API with OpenAPI documentation;
+- runs locally and deterministically, without an API key or another AI model.
 
-Estou publicando a primeira versão como open source para receber feedback de
-quem trabalha com agentes, observabilidade, sistemas distribuídos e qualidade de
-software.
+I am releasing the first version as open source and would value feedback from
+people working on agents, observability, distributed systems, and software
+quality.
 
-Repositório: https://github.com/geragew/agentserial
+Repository: https://github.com/geragew/agentserial
+Live demo: https://geragew.github.io/agentserial/
 
-Qual tipo de falha entre agentes você gostaria de conseguir detectar antes de
-chegar à produção?
+What kind of multi-agent failure would you want to catch before production?
 
 #OpenSource #ArtificialIntelligence #AIAgents #Python #OpenTelemetry
 #DistributedSystems #SoftwareEngineering #Observability
 
 ## Short version
 
-Todos os agentes terminaram com sucesso. Mesmo assim, o sistema falhou.
+Every agent reported success. The system still failed.
 
-Criei o **AgentSerial** para encontrar esse tipo de problema: ele reexecuta
-históricos de efeitos paralelos, verifica contratos globais e mostra o menor
-contraexemplo que explica a falha.
+I built **AgentSerial** to find that class of problem. It replays parallel effect
+histories, checks global contracts, and reveals the smallest counterexample that
+explains a failure.
 
-Open source, local, determinístico e sem API key.
+Open source. Local. Deterministic. CLI and HTTP API. No API key required.
 
-Repositório: https://github.com/geragew/agentserial
+Repository: https://github.com/geragew/agentserial
 
 #OpenSource #AIAgents #Python #DistributedSystems #Observability
 
-## Suggested carousel/video captions
+## Suggested carousel or video captions
 
-1. Todos os agentes tiveram sucesso. O sistema nao.
-2. A ordem das ações pode mudar o resultado global.
-3. AgentSerial testa as ordens viáveis contra um contrato.
-4. A falha vira um contraexemplo pequeno e explicável.
-5. Open source, local e sem API key.
+1. Every agent succeeded. The system did not.
+2. Execution order can change the global result.
+3. AgentSerial tests feasible orders against a contract.
+4. A complex failure becomes a small, explainable counterexample.
+5. Open source, local, deterministic, and API-ready.
 
 Use `media/agentserial-demo.webm` as the product demonstration and
 `media/social-preview.png` as the cover image.
