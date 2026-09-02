@@ -179,10 +179,15 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.3.0`) intended for research,
+AgentSerial is an early open-source release (`v0.4.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.
+
+The checker memoizes convergent execution states while preserving exact replay
+counts. In the included benchmark, ten unordered commuting operations represent
+`3,628,800` feasible replays but require only `5,120` evaluated transitions. The
+worst case remains factorial when different orders produce different states.
 
 ## Runtime recording
 

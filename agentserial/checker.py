@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
+from typing import Any
 
 from agentserial.invariants import (
     evaluate,
@@ -17,6 +19,15 @@ from agentserial.models import (
     VerdictStatus,
     Witness,
 )
+
+
+@dataclass(frozen=True)
+class _SearchSummary:
+    safe: int = 0
+    unsafe: int = 0
+    safe_suffix: tuple[str, ...] | None = None
+    unsafe_suffix: tuple[str, ...] | None = None
+    unsafe_violations: tuple[str, ...] = ()
 
 
 def check(
@@ -50,45 +61,43 @@ def check(
     for before, after in edges:
         predecessors[after].add(before)
 
-    safe_count = 0
-    unsafe_count = 0
     explored = 0
-    safe_witness: Witness | None = None
-    unsafe_witness: Witness | None = None
     read_conflicts: list[str] = []
     limit_reached = False
     initial_violations = evaluate(contract, history.initial_state)
+    cache: dict[tuple[Any, ...], _SearchSummary] = {}
 
     def visit(
-        completed: tuple[str, ...],
+        completed: frozenset[str],
         state: dict[str, ResourceState],
         violations: tuple[str, ...],
-    ) -> None:
-        nonlocal safe_count, unsafe_count, explored, safe_witness, unsafe_witness, limit_reached
+    ) -> _SearchSummary:
+        nonlocal explored, limit_reached
         if limit_reached:
-            return
+            return _SearchSummary()
+        cache_key = (completed, _freeze_state(state), violations)
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return cached
         if len(completed) == len(successful):
-            witness = Witness(order=list(completed), violations=list(dict.fromkeys(violations)))
             if violations:
-                unsafe_count += 1
-                if unsafe_witness is None:
-                    unsafe_witness = witness
-            else:
-                safe_count += 1
-                if safe_witness is None:
-                    safe_witness = witness
-            return
+                return _SearchSummary(unsafe=1, unsafe_suffix=(), unsafe_violations=violations)
+            return _SearchSummary(safe=1, safe_suffix=())
 
-        completed_set = set(completed)
         ready = sorted(
             operation_id
             for operation_id in successful
-            if operation_id not in completed_set and predecessors[operation_id] <= completed_set
+            if operation_id not in completed and predecessors[operation_id] <= completed
         )
+        safe_count = 0
+        unsafe_count = 0
+        safe_suffix: tuple[str, ...] | None = None
+        unsafe_suffix: tuple[str, ...] | None = None
+        unsafe_violations: tuple[str, ...] = ()
         for operation_id in ready:
             if explored >= max_prefixes:
                 limit_reached = True
-                return
+                break
             explored += 1
             operation = successful[operation_id]
             conflicts = _read_conflicts(operation, state)
@@ -98,10 +107,35 @@ def check(
                         read_conflicts.append(conflict)
                 continue
             next_state = _apply(operation, state)
-            next_violations = violations + tuple(evaluate(contract, next_state))
-            visit(completed + (operation_id,), next_state, next_violations)
+            next_violations = tuple(dict.fromkeys(violations + tuple(evaluate(contract, next_state))))
+            child = visit(completed | {operation_id}, next_state, next_violations)
+            safe_count += child.safe
+            unsafe_count += child.unsafe
+            if safe_suffix is None and child.safe_suffix is not None:
+                safe_suffix = (operation_id,) + child.safe_suffix
+            if unsafe_suffix is None and child.unsafe_suffix is not None:
+                unsafe_suffix = (operation_id,) + child.unsafe_suffix
+                unsafe_violations = child.unsafe_violations
+        summary = _SearchSummary(
+            safe=safe_count,
+            unsafe=unsafe_count,
+            safe_suffix=safe_suffix,
+            unsafe_suffix=unsafe_suffix,
+            unsafe_violations=unsafe_violations,
+        )
+        if not limit_reached:
+            cache[cache_key] = summary
+        return summary
 
-    visit((), deepcopy(history.initial_state), tuple(initial_violations))
+    search = visit(frozenset(), deepcopy(history.initial_state), tuple(dict.fromkeys(initial_violations)))
+    safe_count = search.safe
+    unsafe_count = search.unsafe
+    safe_witness = Witness(order=list(search.safe_suffix)) if search.safe_suffix is not None else None
+    unsafe_witness = (
+        Witness(order=list(search.unsafe_suffix), violations=list(search.unsafe_violations))
+        if search.unsafe_suffix is not None
+        else None
+    )
 
     if limit_reached:
         return CheckResult(
@@ -155,6 +189,19 @@ def check(
             operation for operation in history.operations if operation.id in reduced
         ]
     return result
+
+
+def _freeze_state(state: dict[str, ResourceState]) -> tuple[Any, ...]:
+    return tuple(
+        (name, _freeze_value(resource.value), resource.version)
+        for name, resource in sorted(state.items())
+    )
+
+
+def _freeze_value(value: Any) -> tuple[str, Any]:
+    if isinstance(value, list):
+        return ("list", tuple(_freeze_value(item) for item in value))
+    return (type(value).__name__, value)
 
 
 def _read_conflicts(operation: Operation, state: dict[str, ResourceState]) -> list[str]:

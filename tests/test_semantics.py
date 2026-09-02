@@ -89,3 +89,26 @@ def test_contract_rejects_later_incompatible_value() -> None:
     result = check(History.model_validate(data), contract())
     assert result.status == VerdictStatus.INVALID_CONTRACT
     assert "cannot evaluate" in result.errors[0]
+
+
+def test_equivalent_states_are_memoized_without_losing_replay_counts() -> None:
+    operation_count = 10
+    data = {
+        "schema_version": "0.1",
+        "history_id": "commuting-increments",
+        "initial_state": {"x": {"value": 0, "version": 0}},
+        "operations": [
+            {
+                "id": f"op-{index}",
+                "agent": f"agent-{index}",
+                "effects": [{"type": "increment", "resource": "x", "value": 1}],
+            }
+            for index in range(operation_count)
+        ],
+        "order": [],
+    }
+    result = check(History.model_validate(data), contract(), shrink=False)
+    assert result.status == VerdictStatus.ROBUST_PASS
+    assert result.feasible_replays == 3_628_800
+    assert result.safe_replays == 3_628_800
+    assert result.explored_prefixes <= 5_120

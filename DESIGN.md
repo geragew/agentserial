@@ -95,7 +95,9 @@ would add navigation cost without yet isolating meaningful subsystems.
 5. For each choice, compare all reads to the current immutable state snapshot.
 6. If reads match, apply effects to a copy, increment each touched resource once,
    and accumulate invariant violations without pruning that feasible branch.
-7. Prune only on read mismatch. Memoization is optional for v0.1.
+7. Prune only on read mismatch. Memoize suffix results by completed-operation
+   set, frozen modeled state, resource versions, and accumulated violations.
+   Reuse exact completion counts and deterministic suffix witnesses.
 8. Count complete safe and unsafe feasible replays and retain one deterministic
    witness of each class.
 9. Return `ROBUST_PASS`, `SCHEDULE_DEPENDENT`, `CONTRACT_FAIL`, or
@@ -105,6 +107,9 @@ would add navigation cost without yet isolating meaningful subsystems.
 The deterministic branch order makes output reproducible. The CLI should default
 to a conservative maximum operation count and maximum explored-prefix count,
 both displayed when they cause `INCONCLUSIVE`.
+
+Memoization collapses convergent interleavings, but it does not remove the
+factorial worst case when different orders produce distinct modeled states.
 
 ## 5. Shrinker algorithm
 

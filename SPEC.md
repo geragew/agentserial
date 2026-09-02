@@ -152,6 +152,12 @@ contract referencing a missing resource or an incompatible value type is
 6. Classify complete feasible replays as contract-valid or contract-invalid.
 7. Derive the verdict from the counts of each class after exhaustive search.
 
+Implementations may memoize a search suffix when the completed-operation set,
+modeled state, resource versions, and accumulated violations are identical. A
+cache hit must reuse the exact safe and unsafe completion counts and must not
+change deterministic witness selection. The explored-prefix limit counts only
+transitions actually evaluated; reused suffixes do not consume it again.
+
 Read mismatches may prune a candidate because it is infeasible. Invariant
 violations must not prune it before a complete replay is counted. The checker
 must not silently omit a successful operation to obtain a pass.

@@ -39,7 +39,7 @@ PAYLOAD = {"history": HISTORY.model_dump(), "contract": CONTRACT.model_dump()}
 def test_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": "0.3.0"}
+    assert response.json() == {"status": "ok", "version": "0.4.0"}
 
 
 def test_validate_documents() -> None:
