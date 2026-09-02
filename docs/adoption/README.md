@@ -12,6 +12,32 @@ must not contain project documentation.
 - Public APIs require documentation, examples, and compatibility tests.
 - Integration-specific code must stay outside the verification core.
 
+## Data engineering principles
+
+Every initiative must preserve the following system properties:
+
+- **Canonical semantics:** adapters translate source concepts into one documented
+  model; they must not silently invent reads, effects, order, or atomicity.
+- **Stable identity:** history, operation, event, agent, and resource identifiers
+  are deterministic within their documented scope and safe to replay.
+- **Deterministic processing:** identical accepted input and configuration produce
+  byte-equivalent normalized data and the same verdict.
+- **Idempotent ingestion:** retries and duplicate delivery cannot create additional
+  logical operations or effects.
+- **Explicit time semantics:** event time, ingestion time, causal order, clock
+  source, and clock uncertainty are distinct concepts. Wall-clock order is never
+  treated as causality without an explicit producer guarantee.
+- **Schema evolution:** every persisted or exchanged record has a schema version,
+  compatibility policy, migration path, and golden compatibility fixtures.
+- **Data quality:** completeness, uniqueness, validity, consistency, and causal
+  integrity are measured. Invalid records are rejected or quarantined explicitly.
+- **Lineage and provenance:** reports retain the source, adapter version, mapping
+  version, transformations, and evidence needed to reproduce a conclusion.
+- **Privacy by default:** collection is minimized; secrets and sensitive payloads
+  are redacted before persistence, logs, exports, and diagnostic output.
+- **Bounded operation:** memory, latency, input size, and state-growth limits are
+  documented, observable, and return an explicit inconclusive result when hit.
+
 ## 1. Framework integrations
 
 **Goal:** let teams record AgentSerial histories from popular agent frameworks
@@ -20,12 +46,18 @@ with a few lines of configuration and without rewriting application logic.
 ### Shared integration foundation
 
 - [ ] `INT-001` Define a small adapter protocol for runs, agents, tool calls,
-  state reads, effects, messages, and errors.
-- [ ] `INT-002` Define stable semantic attributes shared by every adapter.
-- [ ] `INT-003` Add adapter contract tests with framework-neutral fixtures.
+  state reads, effects, messages, errors, and source metadata.
+- [ ] `INT-002` Define canonical identities, lifecycle states, cardinality,
+  nullability, ordering, and atomicity semantics shared by every adapter.
+- [ ] `INT-003` Add adapter contract tests with framework-neutral golden fixtures,
+  including retries, duplicates, late events, missing events, and invalid order.
 - [ ] `INT-004` Add redaction hooks before framework data reaches a recorder.
 - [ ] `INT-005` Add a compatibility matrix for supported framework versions.
 - [ ] `INT-006` Document the integration lifecycle and maintainer policy.
+- [ ] `INT-007` Define a versioned adapter envelope containing source framework,
+  adapter version, mapping version, capture time, and producer instance.
+- [ ] `INT-008` Specify deterministic deduplication keys and collision behavior.
+- [ ] `INT-009` Define explicit loss accounting for unmapped source events.
 
 ### LangGraph, first delivery
 
@@ -38,6 +70,8 @@ with a few lines of configuration and without rewriting application logic.
 - [ ] `INT-106` Document installation and a copy-paste quick start.
 - [ ] `INT-107` Publish the adapter as an optional dependency and verify a clean
   installation in CI.
+- [ ] `INT-108` Verify checkpoint replay, resumed runs, parallel branches, and
+  duplicate callback delivery without duplicating logical effects.
 
 ### OpenAI Agents SDK
 
@@ -65,6 +99,8 @@ with a few lines of configuration and without rewriting application logic.
 - A new user instruments each supported framework in five lines or fewer,
   excluding imports and secrets.
 - All adapters emit the same canonical AgentSerial history format.
+- Replaying the same captured run produces the same normalized history.
+- Every dropped, inferred, or lossy mapping is counted and reported.
 - Framework upgrades are tested through a documented compatibility matrix.
 - Removing an optional framework dependency does not break the core package.
 
@@ -82,6 +118,8 @@ capture, but the shared adapter contract can be implemented immediately.
 - [ ] `PKG-005` Verify fresh installs on Windows, Linux, and macOS.
 - [ ] `PKG-006` Add release notes, upgrade guidance, and rollback instructions.
 - [ ] `PKG-007` Block releases when package contents or smoke tests fail.
+- [ ] `PKG-008` Publish an artifact manifest with checksums, schema compatibility,
+  supported runtimes, and software bill of materials.
 
 **Acceptance criteria:** `pip install agentserial` and the documented npm
 install command work in clean environments and reproduce the release artifacts.
@@ -97,6 +135,10 @@ install command work in clean environments and reproduce the release artifacts.
 - [ ] `AUTO-005` Add configurable payload redaction and size limits.
 - [ ] `AUTO-006` Detect duplicate instrumentation and prevent duplicate events.
 - [ ] `AUTO-007` Benchmark runtime, memory, and serialized-size overhead.
+- [ ] `AUTO-008` Define backpressure, buffering, flush, retry, and shutdown
+  guarantees for process failure and high-volume capture.
+- [ ] `AUTO-009` Test deterministic deduplication across process and transport
+  retries without suppressing distinct operations.
 
 **Acceptance criteria:** common sync and async workflows are captured with one
 setup call, secrets are redacted by default, and overhead limits are published.
@@ -113,6 +155,9 @@ vendor-specific trace layout.
 - [ ] `OTEL-005` Ship presets for common semantic conventions.
 - [ ] `OTEL-006` Add fixtures from multiple collectors and observability vendors.
 - [ ] `OTEL-007` Document loss of information and ambiguous mappings.
+- [ ] `OTEL-008` Preserve trace/span identity and distinguish event time from
+  ingestion time without deriving causal order from timestamps alone.
+- [ ] `OTEL-009` Version and fingerprint mapping configurations in output lineage.
 
 **Acceptance criteria:** users can adapt an existing trace through configuration,
 and conversion reports every dropped or unresolved field.
@@ -128,6 +173,8 @@ and conversion reports every dropped or unresolved field.
 - [ ] `UI-005` Export deterministic, human-readable YAML.
 - [ ] `UI-006` Add accessible keyboard navigation and screen-reader labels.
 - [ ] `UI-007` Add browser tests for create, edit, import, and export flows.
+- [ ] `UI-008` Preserve contract schema versions and require an explicit migration
+  preview before applying incompatible edits.
 
 **Acceptance criteria:** a user can create, inspect, edit, and export a valid
 contract from the browser without learning the YAML schema first.
@@ -143,6 +190,11 @@ contract from the browser without learning the YAML schema first.
 - [ ] `IMP-005` Let users download the converted AgentSerial history.
 - [ ] `IMP-006` Recommend the closest bundled example for failed imports.
 - [ ] `IMP-007` Keep all local-file processing private by default.
+- [ ] `IMP-008` Produce a data-quality summary for accepted, rejected, duplicate,
+  incomplete, late, and unmapped records.
+- [ ] `IMP-009` Quarantine invalid records with stable error codes and provenance.
+- [ ] `IMP-010` Guarantee deterministic output for repeated imports of the same
+  content and mapping configuration.
 
 **Acceptance criteria:** a first-time user can import a supported trace, correct
 problems, inspect the normalized result, and download it in one guided flow.
@@ -158,6 +210,8 @@ problems, inspect the normalized result, and download it in one guided flow.
 - [ ] `CI-005` Document required-check and branch-protection setup.
 - [ ] `CI-006` Add a versioning and deprecation policy for action inputs.
 - [ ] `CI-007` Test the action in a separate consumer fixture repository.
+- [ ] `CI-008` Emit versioned SARIF or equivalent machine-readable diagnostics
+  with stable rule identifiers and artifact provenance.
 
 **Acceptance criteria:** a repository can block a pull request on a violated
 contract using one documented workflow step and a pinned AgentSerial version.
@@ -174,6 +228,10 @@ sound, explainable results.
 - [ ] `SCALE-005` Add bounded-search controls and explicit incomplete results.
 - [ ] `SCALE-006` Evaluate SAT/SMT encoding against current algorithms.
 - [ ] `SCALE-007` Publish complexity limits and benchmark regressions in CI.
+- [ ] `SCALE-008` Benchmark skewed resource cardinality, dense causal graphs,
+  duplicate delivery, and adversarial histories rather than average cases only.
+- [ ] `SCALE-009` Measure peak memory, state count, throughput, and tail latency
+  with reproducible datasets and fixed hardware metadata.
 
 **Acceptance criteria:** larger reference histories meet published budgets, and
 the engine never presents a bounded or incomplete search as a proof.
@@ -189,6 +247,10 @@ the engine never presents a bounded or incomplete search as a proof.
 - [ ] `COV-005` Prevent strong conclusions when required evidence is absent.
 - [ ] `COV-006` Add coverage thresholds to contracts and CI configuration.
 - [ ] `COV-007` Test partial, duplicated, reordered, and corrupted telemetry.
+- [ ] `COV-008` Define a versioned lineage record from raw source through mapping,
+  normalization, verification, and report generation.
+- [ ] `COV-009` Add quality metrics with documented denominators and `unknown`
+  states so missing evidence is never represented as zero.
 
 **Acceptance criteria:** every report distinguishes observed facts, inferred
 relationships, and evidence gaps, with consistent results across interfaces.
@@ -205,6 +267,10 @@ relationships, and evidence gaps, with consistent results across interfaces.
 - [ ] `CASE-006` Include failing trace, contract, minimal counterexample, and fix.
 - [ ] `CASE-007` Validate every case in CI and document expected output.
 - [ ] `CASE-008` Add an index organized by industry, failure, and invariant.
+- [ ] `CASE-009` Include duplicate, late, missing, malformed, and schema-migration
+  variants for each applicable domain case.
+- [ ] `CASE-010` Pin generators, seeds, expected fingerprints, and benchmark
+  metadata so cases remain reproducible across releases.
 
 **Acceptance criteria:** every case is deterministic, runnable from a clean
 checkout, initially demonstrates the failure, and includes a verified repair.
@@ -213,8 +279,8 @@ checkout, initially demonstrates the failure, and includes a verified repair.
 
 Work starts with initiative 1 as requested. The smallest useful delivery is:
 
-1. Complete `INT-001` through `INT-006` for the shared adapter foundation.
-2. Complete `INT-101` through `INT-107` for the LangGraph integration.
+1. Complete `INT-001` through `INT-009` for the shared adapter foundation.
+2. Complete `INT-101` through `INT-108` for the LangGraph integration.
 3. Complete initiative 2 so adapters can be installed from registries.
 4. Complete initiative 7 so projects can enforce contracts in pull requests.
 5. Deliver the remaining framework adapters in measured adoption order.
@@ -227,3 +293,6 @@ Work starts with initiative 1 as requested. The smallest useful delivery is:
 A task is done only when its implementation, tests, documentation, failure
 behavior, and compatibility impact have been reviewed. An initiative is done
 only when its acceptance criteria pass in CI and from a clean user environment.
+Any change to persisted data or public events must also include schema impact,
+migration behavior, golden old-reader/new-writer and new-reader/old-writer tests,
+lineage impact, quality metrics, operational limits, and rollback instructions.
