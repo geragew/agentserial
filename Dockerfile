@@ -7,8 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN useradd --create-home --uid 10001 agentserial
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE NOTICE ./
+COPY index.html styles.css app.js SPEC.md PRIOR_ART.md ./
+COPY assets ./assets
 COPY agentserial ./agentserial
-RUN python -m pip install ".[api]"
+RUN python -m pip install .
 
 USER agentserial
 EXPOSE 8000
