@@ -11,7 +11,6 @@ from agentserial.models import VerdictStatus
 from agentserial.otel_adapter import import_otlp_json
 from agentserial.parsing import load_contract, load_history
 
-
 ROOT = Path(__file__).parents[1]
 EXAMPLE = ROOT / "examples" / "09_opentelemetry"
 runner = CliRunner()
@@ -77,4 +76,3 @@ def test_missing_history_attribute_is_readable_error(tmp_path: Path) -> None:
     result = runner.invoke(app, ["import-otel", str(trace), "--output", str(tmp_path / "out.json")])
     assert result.exit_code == 2
     assert "exactly one distinct agentserial.history.id" in result.stdout
-

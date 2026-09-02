@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from agentserial.models import Contract, History, OrderingConstraint, VerdictStatus
+from agentserial.ordering import project_order
 
 
 def shrink_history(
@@ -35,26 +36,14 @@ def shrink_history(
 
 
 def _subset(history: History, retained: set[str]) -> History:
-    nodes = {operation.id for operation in history.operations}
-    adjacency = {node: set() for node in nodes}
-    for edge in history.order:
-        adjacency[edge.before].add(edge.after)
-    projected: list[OrderingConstraint] = []
-    for source in sorted(retained):
-        pending = list(adjacency[source])
-        seen: set[str] = set()
-        while pending:
-            target = pending.pop()
-            if target in seen:
-                continue
-            seen.add(target)
-            pending.extend(adjacency[target])
-        for target in sorted(seen & retained):
-            projected.append(OrderingConstraint(before=source, after=target))
+    operation_ids = (operation.id for operation in history.operations)
+    projected = [
+        OrderingConstraint(before=before, after=after)
+        for before, after in sorted(project_order(operation_ids, history.order, retained))
+    ]
     return history.model_copy(
         update={
             "operations": [operation for operation in history.operations if operation.id in retained],
             "order": projected,
         }
     )
-

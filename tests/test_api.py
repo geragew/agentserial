@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 from agentserial.api import ApiSettings, app, create_app
 from agentserial.models import Contract, History
-
 
 client = TestClient(app)
 
@@ -39,7 +39,7 @@ PAYLOAD = {"history": HISTORY.model_dump(), "contract": CONTRACT.model_dump()}
 def test_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": "0.5.0"}
+    assert response.json() == {"status": "ok", "version": "0.6.0"}
 
 
 def test_local_application_serves_workspace() -> None:
@@ -94,7 +94,11 @@ def test_upload_json_history_and_yaml_contract() -> None:
         "history": ("history.json", HISTORY.model_dump_json(), "application/json"),
         "contract": (
             "contract.yaml",
-            'version: "0.1"\ninvariants:\n  - id: non-negative\n    type: min_value\n    resource: balance\n    min: 0\n',
+            'version: "0.1"\ninvariants:\n'
+            "  - id: non-negative\n"
+            "    type: min_value\n"
+            "    resource: balance\n"
+            "    min: 0\n",
             "application/yaml",
         ),
     }
@@ -110,3 +114,16 @@ def test_rate_limit_protects_analysis_routes() -> None:
     assert response.status_code == 429
     assert response.headers["retry-after"] == "60"
     assert limited.get("/health").status_code == 200
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {"max_body_bytes": 0},
+        {"timeout_seconds": 0},
+        {"rate_limit_per_minute": -1},
+    ],
+)
+def test_api_settings_reject_invalid_limits(settings: dict[str, int]) -> None:
+    with pytest.raises(ValueError):
+        ApiSettings(**settings)

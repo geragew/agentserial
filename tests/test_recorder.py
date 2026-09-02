@@ -22,10 +22,9 @@ def test_recorder_produces_importable_trace(tmp_path: Path) -> None:
 def test_failed_operation_discards_buffered_effects(tmp_path: Path) -> None:
     trace = tmp_path / "events.jsonl"
     recorder = TraceRecorder(trace, "failed-run", {"balance": (10, 0)})
-    with pytest.raises(RuntimeError):
-        with recorder.operation("debit", "billing-agent") as operation:
-            operation.effect("increment", "balance", -4)
-            raise RuntimeError("provider failed")
+    with pytest.raises(RuntimeError), recorder.operation("debit", "billing-agent") as operation:
+        operation.effect("increment", "balance", -4)
+        raise RuntimeError("provider failed")
     history = import_jsonl(trace)
     assert history.operations[0].status == "failure"
     assert history.operations[0].effects == []

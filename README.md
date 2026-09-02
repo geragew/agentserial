@@ -188,7 +188,7 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.5.0`) intended for research,
+AgentSerial is an early open-source release (`v0.6.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.

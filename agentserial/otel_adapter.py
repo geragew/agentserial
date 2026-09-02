@@ -29,7 +29,9 @@ def import_otlp_json(path: Path) -> History:
             context = f"document {document_number}, resourceSpans[{resource_index}]"
             if not isinstance(resource_span, dict):
                 raise OtelImportError(f"{context}: entry must be an object")
-            resource_attributes = _attributes(resource_span.get("resource", {}).get("attributes", []), context)
+            resource_attributes = _attributes(
+                resource_span.get("resource", {}).get("attributes", []), context
+            )
             history_id = resource_attributes.get("agentserial.history.id")
             if history_id is not None:
                 if not isinstance(history_id, str) or not history_id:
@@ -78,14 +80,19 @@ def import_otlp_json(path: Path) -> History:
                     predecessors = attributes.get("agentserial.order.after", [])
                     if isinstance(predecessors, str):
                         predecessors = [predecessors]
-                    if not isinstance(predecessors, list) or any(not isinstance(item, str) for item in predecessors):
-                        raise OtelImportError(f"{span_context}: agentserial.order.after must be a string array")
-                    constraints.extend({"before": predecessor, "after": operation_id} for predecessor in predecessors)
+                    if not isinstance(predecessors, list) or any(
+                        not isinstance(item, str) for item in predecessors
+                    ):
+                        raise OtelImportError(
+                            f"{span_context}: agentserial.order.after must be a string array"
+                        )
+                    constraints.extend(
+                        {"before": predecessor, "after": operation_id} for predecessor in predecessors
+                    )
 
     if len(history_ids) != 1:
         raise OtelImportError(
-            "OTLP input must contain exactly one distinct agentserial.history.id; "
-            f"found {len(history_ids)}"
+            f"OTLP input must contain exactly one distinct agentserial.history.id; found {len(history_ids)}"
         )
     document = {
         "schema_version": "0.1",
@@ -179,7 +186,11 @@ def _collect_resources(events: list[Any], resources: dict[str, dict[str, Any]], 
             raise OtelImportError(f"{context}: resource event requires agentserial.resource.name")
         if name in resources:
             raise OtelImportError(f"{context}: duplicate initial resource {name!r}")
-        if "agentserial.resource.value" not in attributes or isinstance(version, bool) or not isinstance(version, int):
+        if (
+            "agentserial.resource.value" not in attributes
+            or isinstance(version, bool)
+            or not isinstance(version, int)
+        ):
             raise OtelImportError(f"{context}: resource event requires value and integer version")
         resources[name] = {"value": attributes["agentserial.resource.value"], "version": version}
 
@@ -203,11 +214,14 @@ def _operation_events(events: list[Any], context: str) -> tuple[list[dict[str, A
             version = attributes.get("agentserial.resource.version")
             if isinstance(version, bool) or not isinstance(version, int):
                 raise OtelImportError(f"{context}: read event requires integer resource version")
-            reads.append({"resource": resource, "value": attributes["agentserial.resource.value"], "version": version})
+            reads.append(
+                {"resource": resource, "value": attributes["agentserial.resource.value"], "version": version}
+            )
         else:
             effect_type = attributes.get("agentserial.effect.type")
             if effect_type not in {"set", "increment", "append"}:
                 raise OtelImportError(f"{context}: effect event has invalid agentserial.effect.type")
-            effects.append({"type": effect_type, "resource": resource, "value": attributes["agentserial.resource.value"]})
+            effects.append(
+                {"type": effect_type, "resource": resource, "value": attributes["agentserial.resource.value"]}
+            )
     return reads, effects
-

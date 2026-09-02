@@ -6,7 +6,6 @@ from agentserial.checker import check
 from agentserial.models import VerdictStatus
 from agentserial.parsing import load_contract, load_history
 
-
 ROOT = Path(__file__).parents[1]
 
 

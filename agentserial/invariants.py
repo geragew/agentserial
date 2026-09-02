@@ -16,7 +16,11 @@ from agentserial.models import (
 def validate_contract_resources(contract: Contract, state: dict[str, ResourceState]) -> list[str]:
     errors: list[str] = []
     for invariant in contract.invariants:
-        names = [invariant.left, invariant.right] if isinstance(invariant, EqualsInvariant) else [invariant.resource]
+        names = (
+            [invariant.left, invariant.right]
+            if isinstance(invariant, EqualsInvariant)
+            else [invariant.resource]
+        )
         missing = False
         for name in names:
             if name not in state:
@@ -26,7 +30,9 @@ def validate_contract_resources(contract: Contract, state: dict[str, ResourceSta
             continue
         if isinstance(invariant, MaxSumInvariant):
             value = state[invariant.resource].value
-            if not isinstance(value, list) or any(isinstance(item, bool) or not isinstance(item, (int, float)) for item in value):
+            if not isinstance(value, list) or any(
+                isinstance(item, bool) or not isinstance(item, (int, float)) for item in value
+            ):
                 errors.append(f"invariant {invariant.id!r} requires a list of numbers")
         elif isinstance(invariant, MinValueInvariant):
             value = state[invariant.resource].value
@@ -48,15 +54,18 @@ def validate_contract_effects(contract: Contract, history: History) -> list[str]
                         isinstance(effect.value, bool) or not isinstance(effect.value, (int, float))
                     ):
                         errors.append(
-                            f"invariant {invariant.id!r} cannot evaluate non-numeric append in {operation.id!r}"
+                            f"invariant {invariant.id!r} cannot evaluate non-numeric append "
+                            f"in {operation.id!r}"
                         )
-                elif isinstance(invariant, MinValueInvariant) and effect.resource == invariant.resource:
-                    if effect.type == "set" and (
-                        isinstance(effect.value, bool) or not isinstance(effect.value, (int, float))
-                    ):
-                        errors.append(
-                            f"invariant {invariant.id!r} cannot evaluate non-numeric set in {operation.id!r}"
-                        )
+                elif (
+                    isinstance(invariant, MinValueInvariant)
+                    and effect.resource == invariant.resource
+                    and effect.type == "set"
+                    and (isinstance(effect.value, bool) or not isinstance(effect.value, (int, float)))
+                ):
+                    errors.append(
+                        f"invariant {invariant.id!r} cannot evaluate non-numeric set in {operation.id!r}"
+                    )
     return errors
 
 
@@ -66,7 +75,9 @@ def evaluate(contract: Contract, state: dict[str, ResourceState]) -> list[str]:
         if isinstance(invariant, MaxSumInvariant):
             actual = sum(state[invariant.resource].value)
             if actual > invariant.max:
-                violations.append(f"{invariant.id}: sum({invariant.resource})={actual} exceeds {invariant.max}")
+                violations.append(
+                    f"{invariant.id}: sum({invariant.resource})={actual} exceeds {invariant.max}"
+                )
         elif isinstance(invariant, MinValueInvariant):
             actual = state[invariant.resource].value
             if actual < invariant.min:
@@ -80,7 +91,9 @@ def evaluate(contract: Contract, state: dict[str, ResourceState]) -> list[str]:
             left = state[invariant.left].value
             right = state[invariant.right].value
             if _encoded(left) != _encoded(right):
-                violations.append(f"{invariant.id}: {invariant.left}={left!r} differs from {invariant.right}={right!r}")
+                violations.append(
+                    f"{invariant.id}: {invariant.left}={left!r} differs from {invariant.right}={right!r}"
+                )
     return violations
 
 

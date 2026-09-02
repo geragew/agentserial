@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import argparse
-from time import perf_counter
 from math import factorial
+from time import perf_counter
 
 from agentserial.checker import check
 from agentserial.models import Contract, History
@@ -23,13 +23,15 @@ def benchmark(operation_count: int) -> float:
                 for index in range(operation_count)
             ],
             "order": [
-                {"before": f"op-{index}", "after": f"op-{index + 1}"}
-                for index in range(operation_count - 1)
+                {"before": f"op-{index}", "after": f"op-{index + 1}"} for index in range(operation_count - 1)
             ],
         }
     )
     contract = Contract.model_validate(
-        {"version": "0.1", "invariants": [{"id": "floor", "type": "min_value", "resource": "counter", "min": 0}]}
+        {
+            "version": "0.1",
+            "invariants": [{"id": "floor", "type": "min_value", "resource": "counter", "min": 0}],
+        }
     )
     started = perf_counter()
     result = check(history, contract, max_operations=operation_count, shrink=False)
@@ -56,7 +58,10 @@ def benchmark_unordered(operation_count: int) -> tuple[float, int]:
         }
     )
     contract = Contract.model_validate(
-        {"version": "0.1", "invariants": [{"id": "floor", "type": "min_value", "resource": "counter", "min": 0}]}
+        {
+            "version": "0.1",
+            "invariants": [{"id": "floor", "type": "min_value", "resource": "counter", "min": 0}],
+        }
     )
     started = perf_counter()
     result = check(history, contract, max_operations=operation_count, max_prefixes=100_000, shrink=False)

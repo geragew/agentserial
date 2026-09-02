@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentserial"
-version = "0.5.0"
+version = "0.6.0"
 description = "Correctness classification for parallel AI-agent effect histories"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -29,6 +29,7 @@ dev = [
   "hypothesis>=6.130,<7",
   "python-multipart>=0.0.20,<1",
   "pytest>=8.2,<10",
+  "ruff>=0.16,<1",
   "uvicorn>=0.35,<1",
 ]
 
@@ -50,3 +51,14 @@ packages = ["agentserial"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "PYI", "RUF", "SIM", "UP"]
+ignore = ["TRY004"]
+
+[tool.ruff.lint.per-file-ignores]
+"agentserial/report.py" = ["E501"]

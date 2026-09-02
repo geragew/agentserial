@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Annotated, Any, Literal, Union
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
-
 
 JsonScalar = str | int | float | bool | None
 JsonValue = JsonScalar | list[JsonScalar]
@@ -118,7 +117,7 @@ class EqualsInvariant(StrictModel):
 
 
 Invariant = Annotated[
-    Union[MaxSumInvariant, MinValueInvariant, UniqueInvariant, EqualsInvariant],
+    MaxSumInvariant | MinValueInvariant | UniqueInvariant | EqualsInvariant,
     Field(discriminator="type"),
 ]
 

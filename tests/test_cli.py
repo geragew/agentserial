@@ -4,7 +4,6 @@ from typer.testing import CliRunner
 
 from agentserial.cli import app
 
-
 ROOT = Path(__file__).parents[1]
 runner = CliRunner()
 

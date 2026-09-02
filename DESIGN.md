@@ -52,10 +52,14 @@ agentserial/
   models.py
   parsing.py
   invariants.py
-  replay.py
+  ordering.py
   checker.py
   shrink.py
   formatting.py
+  recorder.py
+  jsonl_adapter.py
+  otel_adapter.py
+  api.py
 examples/
   01_overspend/
   02_inventory_race/
@@ -64,12 +68,7 @@ examples/
   05_config_mismatch/
   06_permission_stale/README.md
 tests/
-  test_parsing.py
-  test_invariants.py
-  test_replay.py
-  test_checker.py
-  test_shrink.py
-  test_examples.py
+scripts/
 README.md
 SPEC.md
 DESIGN.md
@@ -80,8 +79,9 @@ LICENSE
 pyproject.toml
 ```
 
-Flat modules are sufficient for v0.1. Separate model/parser/engine package trees
-would add navigation cost without yet isolating meaningful subsystems.
+Flat modules remain sufficient at the current scale. `ordering.py` owns causal
+projection shared by checking and reduction, preventing those paths from
+silently acquiring different graph semantics.
 
 ## 4. Checker algorithm
 

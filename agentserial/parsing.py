@@ -9,7 +9,6 @@ from pydantic import BaseModel
 
 from agentserial.models import Contract, History
 
-
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
@@ -23,16 +22,20 @@ def load_contract(path: Path) -> Contract:
 
 def _load(path: Path, model: type[ModelT]) -> ModelT:
     text = path.read_text(encoding="utf-8")
-    data: Any
+    return model.model_validate(parse_document(text, path.suffix))
+
+
+def parse_document(text: str, suffix: str) -> dict[str, Any]:
+    """Parse a JSON or YAML object without applying a domain schema."""
     try:
-        if path.suffix.lower() == ".json":
+        if suffix.lower() == ".json":
             data = json.loads(text)
-        elif path.suffix.lower() in {".yaml", ".yml"}:
+        elif suffix.lower() in {".yaml", ".yml"}:
             data = yaml.safe_load(text)
         else:
-            raise ValueError(f"unsupported file extension: {path.suffix or '<none>'}")
+            raise ValueError(f"unsupported file extension: {suffix or '<none>'}")
     except yaml.YAMLError as error:
         raise ValueError(f"invalid YAML: {error}") from error
     if not isinstance(data, dict):
         raise ValueError("document root must be an object")
-    return model.model_validate(data)
+    return data

@@ -19,6 +19,7 @@ from agentserial.models import (
     VerdictStatus,
     Witness,
 )
+from agentserial.ordering import project_order
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,11 @@ def check(
     max_prefixes: int = 100_000,
     shrink: bool = True,
 ) -> CheckResult:
+    if max_operations < 1:
+        raise ValueError("max_operations must be positive")
+    if max_prefixes < 1:
+        raise ValueError("max_prefixes must be positive")
+
     base = {
         "history_id": history.history_id,
         "operations": len(history.operations),
@@ -48,7 +54,9 @@ def check(
     if contract_errors:
         return CheckResult(status=VerdictStatus.INVALID_CONTRACT, errors=contract_errors, **base)
 
-    successful = {operation.id: operation for operation in history.operations if operation.status == "success"}
+    successful = {
+        operation.id: operation for operation in history.operations if operation.status == "success"
+    }
     if len(successful) > max_operations:
         return CheckResult(
             status=VerdictStatus.INCONCLUSIVE,
@@ -56,7 +64,8 @@ def check(
             **base,
         )
 
-    edges = _project_edges(history, set(successful))
+    operation_ids = (operation.id for operation in history.operations)
+    edges = project_order(operation_ids, history.order, set(successful))
     predecessors = {operation_id: set() for operation_id in successful}
     for before, after in edges:
         predecessors[after].add(before)
@@ -112,9 +121,9 @@ def check(
             safe_count += child.safe
             unsafe_count += child.unsafe
             if safe_suffix is None and child.safe_suffix is not None:
-                safe_suffix = (operation_id,) + child.safe_suffix
+                safe_suffix = (operation_id, *child.safe_suffix)
             if unsafe_suffix is None and child.unsafe_suffix is not None:
-                unsafe_suffix = (operation_id,) + child.unsafe_suffix
+                unsafe_suffix = (operation_id, *child.unsafe_suffix)
                 unsafe_violations = child.unsafe_violations
         summary = _SearchSummary(
             safe=safe_count,
@@ -193,8 +202,7 @@ def check(
 
 def _freeze_state(state: dict[str, ResourceState]) -> tuple[Any, ...]:
     return tuple(
-        (name, _freeze_value(resource.value), resource.version)
-        for name, resource in sorted(state.items())
+        (name, _freeze_value(resource.value), resource.version) for name, resource in sorted(state.items())
     )
 
 
@@ -231,22 +239,3 @@ def _apply(operation: Operation, state: dict[str, ResourceState]) -> dict[str, R
     for resource_name in touched:
         next_state[resource_name].version += 1
     return next_state
-
-
-def _project_edges(history: History, retained: set[str]) -> set[tuple[str, str]]:
-    nodes = {operation.id for operation in history.operations}
-    adjacency = {node: set() for node in nodes}
-    for edge in history.order:
-        adjacency[edge.before].add(edge.after)
-    projected: set[tuple[str, str]] = set()
-    for source in retained:
-        pending = list(adjacency[source])
-        seen: set[str] = set()
-        while pending:
-            target = pending.pop()
-            if target in seen:
-                continue
-            seen.add(target)
-            pending.extend(adjacency[target])
-        projected.update((source, target) for target in seen if target in retained)
-    return projected

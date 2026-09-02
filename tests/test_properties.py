@@ -24,13 +24,15 @@ def test_check_is_deterministic_for_generated_histories(deltas: list[int]) -> No
                 for index, delta in enumerate(deltas)
             ],
             "order": [
-                {"before": f"op-{index}", "after": f"op-{index + 1}"}
-                for index in range(len(deltas) - 1)
+                {"before": f"op-{index}", "after": f"op-{index + 1}"} for index in range(len(deltas) - 1)
             ],
         }
     )
     contract = Contract.model_validate(
-        {"version": "0.1", "invariants": [{"id": "floor", "type": "min_value", "resource": "balance", "min": -20}]}
+        {
+            "version": "0.1",
+            "invariants": [{"id": "floor", "type": "min_value", "resource": "balance", "min": -20}],
+        }
     )
     first = check(history, contract, shrink=False)
     second = check(history, contract, shrink=False)

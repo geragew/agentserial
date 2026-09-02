@@ -23,9 +23,9 @@ from agentserial.otel_adapter import OtelImportError, import_otlp_json
 from agentserial.parsing import load_contract, load_history
 from agentserial.report import generate_report
 
-
 app = typer.Typer(help="Classify parallel agent effect histories against global contracts.")
 console = Console()
+_DOCUMENT_ERRORS = (OSError, ValueError, ValidationError)
 
 
 @app.callback()
@@ -59,7 +59,9 @@ def serve(
 def start(
     host: Annotated[str, typer.Option(help="Interface to bind the local application to")] = "127.0.0.1",
     port: Annotated[int, typer.Option(help="Port, or 0 to select an available port", min=0, max=65535)] = 0,
-    browser: Annotated[bool, typer.Option("--browser/--no-browser", help="Open the workspace automatically")] = True,
+    browser: Annotated[
+        bool, typer.Option("--browser/--no-browser", help="Open the workspace automatically")
+    ] = True,
 ) -> None:
     """Start the complete local workspace with zero configuration."""
     import uvicorn
@@ -100,7 +102,9 @@ def _open_when_ready(url: str) -> None:
 
 @app.command("init")
 def initialize(
-    directory: Annotated[Path, typer.Argument(help="Directory for starter files")] = Path("agentserial-starter"),
+    directory: Annotated[Path, typer.Argument(help="Directory for starter files")] = Path(
+        "agentserial-starter"
+    ),
     force: Annotated[bool, typer.Option("--force", help="Overwrite existing starter files")] = False,
 ) -> None:
     """Create a runnable starter history, contract, and JSONL trace."""
@@ -117,13 +121,17 @@ def initialize(
     for name, content in files.items():
         (directory / name).write_text(content, encoding="utf-8")
     console.print(f"Created starter files in {directory}")
-    console.print(f"Run: agentserial check {directory / 'history.json'} --contract {directory / 'contract.yaml'}")
+    console.print(
+        f"Run: agentserial check {directory / 'history.json'} --contract {directory / 'contract.yaml'}"
+    )
 
 
 @app.command("import-jsonl")
 def import_jsonl_command(
     trace_path: Annotated[Path, typer.Argument(help="Incremental JSONL trace")],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Generated history JSON")] = Path("history.json"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="Generated history JSON")] = Path(
+        "history.json"
+    ),
     force: Annotated[bool, typer.Option("--force", help="Overwrite the output file")] = False,
 ) -> None:
     """Convert an incremental, runtime-neutral JSONL trace into a history."""
@@ -134,7 +142,7 @@ def import_jsonl_command(
         history = import_jsonl(trace_path)
     except TraceImportError as error:
         console.print(f"[red]{error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(history.model_dump_json(indent=2) + "\n", encoding="utf-8")
     console.print(f"Imported {len(history.operations)} operations into {output}")
@@ -143,7 +151,9 @@ def import_jsonl_command(
 @app.command("import-otel")
 def import_otel_command(
     trace_path: Annotated[Path, typer.Argument(help="OTLP/JSON trace export")],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Generated history JSON")] = Path("history.json"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="Generated history JSON")] = Path(
+        "history.json"
+    ),
     force: Annotated[bool, typer.Option("--force", help="Overwrite the output file")] = False,
 ) -> None:
     """Convert an AgentSerial-instrumented OTLP/JSON trace into a history."""
@@ -154,7 +164,7 @@ def import_otel_command(
         history = import_otlp_json(trace_path)
     except OtelImportError as error:
         console.print(f"[red]{error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(history.model_dump_json(indent=2) + "\n", encoding="utf-8")
     console.print(f"Imported {len(history.operations)} OpenTelemetry operations into {output}")
@@ -168,14 +178,14 @@ def validate(
     """Validate history and contract without exploring replay orders."""
     try:
         history = load_history(history_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         console.print(f"[red]INVALID_HISTORY: {error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     try:
         contract = load_contract(contract_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         console.print(f"[red]INVALID_CONTRACT: {error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     errors = validate_contract_resources(contract, history.initial_state)
     errors.extend(validate_contract_effects(contract, history))
     if errors:
@@ -192,7 +202,9 @@ def validate(
 def report(
     history_path: Annotated[Path, typer.Argument(help="History document")],
     contract_path: Annotated[Path, typer.Option("--contract", "-c", help="Contract document")],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Standalone HTML report")] = Path("agentserial-report.html"),
+    output: Annotated[Path, typer.Option("--output", "-o", help="Standalone HTML report")] = Path(
+        "agentserial-report.html"
+    ),
     force: Annotated[bool, typer.Option("--force", help="Overwrite the output file")] = False,
 ) -> None:
     """Generate a standalone visual report from a real check."""
@@ -201,14 +213,14 @@ def report(
         raise typer.Exit(2)
     try:
         history = load_history(history_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         console.print(f"[red]INVALID_HISTORY: {error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     try:
         contract = load_contract(contract_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         console.print(f"[red]INVALID_CONTRACT: {error}[/]")
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     result = check(history, contract)
     if result.status in {VerdictStatus.INVALID_CONTRACT, VerdictStatus.INCONCLUSIVE}:
         for error in result.errors:
@@ -230,14 +242,14 @@ def check_command(
     """Check and classify one history."""
     try:
         history = load_history(history_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         _finish(CheckResult(status=VerdictStatus.INVALID_HISTORY, errors=[str(error)]), json_output)
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
     try:
         contract = load_contract(contract_path)
-    except (OSError, ValueError, ValidationError, json.JSONDecodeError) as error:
+    except _DOCUMENT_ERRORS as error:
         _finish(CheckResult(status=VerdictStatus.INVALID_CONTRACT, errors=[str(error)]), json_output)
-        raise typer.Exit(2)
+        raise typer.Exit(2) from None
 
     result = check(
         history,
@@ -247,7 +259,9 @@ def check_command(
     )
     _finish(result, json_output)
     if result.status != VerdictStatus.ROBUST_PASS:
-        raise typer.Exit(2 if result.status in {VerdictStatus.INCONCLUSIVE, VerdictStatus.INVALID_CONTRACT} else 1)
+        raise typer.Exit(
+            2 if result.status in {VerdictStatus.INCONCLUSIVE, VerdictStatus.INVALID_CONTRACT} else 1
+        )
 
 
 def _finish(result: CheckResult, json_output: bool) -> None:
@@ -262,8 +276,10 @@ _DEMO_HISTORY = """{
   "history_id": "schedule-dependent-balance",
   "initial_state": {"balance": {"value": 0, "version": 0}},
   "operations": [
-    {"id": "credit", "agent": "agent-a", "effects": [{"type": "increment", "resource": "balance", "value": 1}]},
-    {"id": "debit", "agent": "agent-b", "effects": [{"type": "increment", "resource": "balance", "value": -1}]}
+    {"id": "credit", "agent": "agent-a",
+     "effects": [{"type": "increment", "resource": "balance", "value": 1}]},
+    {"id": "debit", "agent": "agent-b",
+     "effects": [{"type": "increment", "resource": "balance", "value": -1}]}
   ],
   "order": []
 }"""

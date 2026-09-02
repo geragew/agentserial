@@ -6,7 +6,6 @@ from rich.table import Table
 
 from agentserial.models import CheckResult, VerdictStatus
 
-
 STATUS_STYLE = {
     VerdictStatus.ROBUST_PASS: "bold green",
     VerdictStatus.SCHEDULE_DEPENDENT: "bold yellow",

@@ -1,7 +1,5 @@
-from copy import deepcopy
-
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from agentserial.checker import check
 from agentserial.models import Contract, History, VerdictStatus
@@ -21,10 +19,12 @@ def history_data() -> dict:
 
 
 def contract() -> Contract:
-    return Contract.model_validate({
-        "version": "0.1",
-        "invariants": [{"id": "floor", "type": "min_value", "resource": "x", "min": 0}],
-    })
+    return Contract.model_validate(
+        {
+            "version": "0.1",
+            "invariants": [{"id": "floor", "type": "min_value", "resource": "x", "min": 0}],
+        }
+    )
 
 
 def test_order_constraint_can_make_schedule_robust() -> None:
@@ -112,3 +112,26 @@ def test_equivalent_states_are_memoized_without_losing_replay_counts() -> None:
     assert result.feasible_replays == 3_628_800
     assert result.safe_replays == 3_628_800
     assert result.explored_prefixes <= 5_120
+
+
+@pytest.mark.parametrize(
+    ("option", "message"), [("max_operations", "max_operations"), ("max_prefixes", "max_prefixes")]
+)
+def test_check_rejects_non_positive_limits(option: str, message: str) -> None:
+    history = History.model_validate(
+        {
+            "schema_version": "0.1",
+            "history_id": "limits",
+            "initial_state": {"value": {"value": 0}},
+            "operations": [],
+        }
+    )
+    contract = Contract.model_validate(
+        {
+            "version": "0.1",
+            "invariants": [{"id": "floor", "type": "min_value", "resource": "value", "min": 0}],
+        }
+    )
+
+    with pytest.raises(ValueError, match=message):
+        check(history, contract, **{option: 0})

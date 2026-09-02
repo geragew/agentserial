@@ -133,4 +133,3 @@ def _active_operation(
     if operation_id in completed:
         raise TraceImportError(f"line {line_number}: operation {operation_id!r} is already complete")
     return operations[operation_id]
-

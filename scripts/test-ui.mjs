@@ -1,16 +1,16 @@
-import { chromium } from "playwright";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
 
+import { launchBrowser } from "./browser.mjs";
+
 const root = path.resolve(import.meta.dirname, "..");
 const target = pathToFileURL(path.join(root, "index.html")).href;
-const edge = "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-const browser = await chromium.launch({ executablePath: edge, headless: true });
+const browser = await launchBrowser();
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = [];

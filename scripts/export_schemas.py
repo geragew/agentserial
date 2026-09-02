@@ -6,7 +6,6 @@ from pathlib import Path
 
 from agentserial.models import Contract, History
 
-
 ROOT = Path(__file__).parents[1]
 
 
@@ -42,4 +41,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

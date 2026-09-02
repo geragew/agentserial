@@ -6,12 +6,11 @@ from pathlib import Path
 import uvicorn
 from typer.testing import CliRunner
 
+from agentserial.checker import check
 from agentserial.cli import app
 from agentserial.jsonl_adapter import import_jsonl
 from agentserial.models import VerdictStatus
-from agentserial.checker import check
 from agentserial.parsing import load_contract
-
 
 runner = CliRunner()
 ROOT = Path(__file__).parents[1]
@@ -58,7 +57,9 @@ def test_jsonl_import_is_equivalent_to_starter_history(tmp_path: Path) -> None:
 
 def test_jsonl_import_reports_line_number(tmp_path: Path) -> None:
     trace = tmp_path / "broken.jsonl"
-    trace.write_text('{"event":"history","history_id":"x","schema_version":"0.1"}\nnot-json\n', encoding="utf-8")
+    trace.write_text(
+        '{"event":"history","history_id":"x","schema_version":"0.1"}\nnot-json\n', encoding="utf-8"
+    )
     result = runner.invoke(app, ["import-jsonl", str(trace), "--output", str(tmp_path / "out.json")])
     assert result.exit_code == 2
     assert "line 2" in result.stdout
@@ -84,9 +85,7 @@ def test_start_launches_complete_workspace(monkeypatch) -> None:
     result = runner.invoke(app, ["start", "--port", "9123", "--no-browser"])
     assert result.exit_code == 0
     assert "http://127.0.0.1:9123/app/" in result.stdout
-    assert calls == [
-        (("agentserial.api:app",), {"host": "127.0.0.1", "port": 9123, "log_level": "warning"})
-    ]
+    assert calls == [(("agentserial.api:app",), {"host": "127.0.0.1", "port": 9123, "log_level": "warning"})]
 
 
 def test_start_requires_api_key_for_public_binding(monkeypatch) -> None:

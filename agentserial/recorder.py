@@ -5,7 +5,7 @@ from contextlib import AbstractContextManager
 from pathlib import Path
 from threading import Lock
 from types import TracebackType
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
 from agentserial.models import JsonValue
 
@@ -53,7 +53,7 @@ class OperationCapture(AbstractContextManager["OperationCapture"]):
         self._events: list[dict[str, Any]] = []
         self._closed = False
 
-    def read(self, resource: str, value: JsonValue, version: int) -> OperationCapture:
+    def read(self, resource: str, value: JsonValue, version: int) -> Self:
         self._ensure_open()
         self._events.append(
             {
@@ -71,7 +71,7 @@ class OperationCapture(AbstractContextManager["OperationCapture"]):
         effect_type: Literal["set", "increment", "append"],
         resource: str,
         value: JsonValue,
-    ) -> OperationCapture:
+    ) -> Self:
         self._ensure_open()
         self._events.append(
             {
@@ -84,7 +84,7 @@ class OperationCapture(AbstractContextManager["OperationCapture"]):
         )
         return self
 
-    def __enter__(self) -> OperationCapture:
+    def __enter__(self) -> Self:
         self._ensure_open()
         return self
 

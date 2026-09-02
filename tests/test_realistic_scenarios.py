@@ -20,9 +20,7 @@ def history(
             "history_id": name,
             "initial_state": {key: {"value": value, "version": 0} for key, value in state.items()},
             "operations": operations,
-            "order": [
-                {"before": before, "after": after} for before, after in (order or [])
-            ],
+            "order": [{"before": before, "after": after} for before, after in (order or [])],
         }
     )
 
@@ -245,4 +243,3 @@ def test_inconsistent_history_explains_the_stale_read() -> None:
     result = check(scenario_history, scenario_contract)
     assert result.read_conflicts
     assert "deploy read permission=True@v0" in result.read_conflicts[0]
-

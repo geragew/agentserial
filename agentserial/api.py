@@ -1,30 +1,29 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 import secrets
 from collections import defaultdict, deque
 from dataclasses import dataclass
-from pathlib import Path
 from importlib.resources import files
+from pathlib import Path
+from time import monotonic
 from typing import Annotated, Any
 from uuid import uuid4
-from time import monotonic
 
-import yaml
 from fastapi import Depends, FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field, ValidationError
+from starlette.concurrency import run_in_threadpool
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from agentserial import __version__
 from agentserial.checker import check
 from agentserial.invariants import validate_contract_effects, validate_contract_resources
 from agentserial.models import CheckResult, Contract, History, StrictModel
+from agentserial.parsing import parse_document
 
 
 class CheckRequest(StrictModel):
@@ -47,11 +46,21 @@ class ApiSettings:
     rate_limit_per_minute: int = 120
     cors_origins: tuple[str, ...] = ("http://localhost", "http://127.0.0.1", "null")
 
+    def __post_init__(self) -> None:
+        if self.max_body_bytes < 1:
+            raise ValueError("max_body_bytes must be positive")
+        if self.timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be positive")
+        if self.rate_limit_per_minute < 0:
+            raise ValueError("rate_limit_per_minute cannot be negative")
+
     @classmethod
     def from_environment(cls) -> ApiSettings:
         origins = tuple(
             origin.strip()
-            for origin in os.getenv("AGENTSERIAL_CORS_ORIGINS", "http://localhost,http://127.0.0.1,null").split(",")
+            for origin in os.getenv(
+                "AGENTSERIAL_CORS_ORIGINS", "http://localhost,http://127.0.0.1,null"
+            ).split(",")
             if origin.strip()
         )
         return cls(
@@ -165,7 +174,10 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             return RedirectResponse("/app/")
 
     @application.post(
-        "/v1/validate", response_model=ValidationResponse, tags=["analysis"], dependencies=[Depends(authorize)]
+        "/v1/validate",
+        response_model=ValidationResponse,
+        tags=["analysis"],
+        dependencies=[Depends(authorize)],
     )
     def validate_documents(request: CheckRequest) -> ValidationResponse:
         errors = validate_contract_resources(request.contract, request.history.initial_state)
@@ -194,9 +206,9 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
                 max_operations=max_operations,
                 max_prefixes=max_prefixes,
             )
-        except (ValueError, ValidationError, json.JSONDecodeError, yaml.YAMLError) as error:
+        except (ValueError, ValidationError, UnicodeError) as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
-        return _run_check(request)
+        return await run_in_threadpool(_run_check, request)
 
     return application
 
@@ -210,20 +222,13 @@ def _run_check(request: CheckRequest) -> CheckResult:
     )
 
 
-def _decode_document(content: bytes, filename: str | None) -> Any:
+def _decode_document(content: bytes, filename: str | None) -> dict[str, Any]:
     if not content:
         raise ValueError("uploaded document is empty")
     suffix = Path(filename or "").suffix.lower()
-    text = content.decode("utf-8")
-    if suffix == ".json":
-        data = json.loads(text)
-    elif suffix in {".yaml", ".yml"}:
-        data = yaml.safe_load(text)
-    else:
+    if suffix not in {".json", ".yaml", ".yml"}:
         raise ValueError("uploaded documents must use .json, .yaml, or .yml")
-    if not isinstance(data, dict):
-        raise ValueError("document root must be an object")
-    return data
+    return parse_document(content.decode("utf-8"), suffix)
 
 
 app = create_app()
