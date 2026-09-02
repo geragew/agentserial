@@ -39,7 +39,17 @@ PAYLOAD = {"history": HISTORY.model_dump(), "contract": CONTRACT.model_dump()}
 def test_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": "0.4.0"}
+    assert response.json() == {"status": "ok", "version": "0.5.0"}
+
+
+def test_local_application_serves_workspace() -> None:
+    response = client.get("/", follow_redirects=False)
+    assert response.status_code == 307
+    assert response.headers["location"] == "/app/"
+    workspace = client.get("/app/")
+    assert workspace.status_code == 200
+    assert "Analyze files" in workspace.text
+    assert client.get("/app/app.js").status_code == 200
 
 
 def test_validate_documents() -> None:

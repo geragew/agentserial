@@ -1,6 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
+import socket
+import threading
+import time
+import urllib.request
+import webbrowser
 from pathlib import Path
 from typing import Annotated
 
@@ -42,14 +48,54 @@ def serve(
     host: Annotated[str, typer.Option(help="Interface to bind the API server to")] = "127.0.0.1",
     port: Annotated[int, typer.Option(help="Port for the API server", min=1, max=65535)] = 8000,
 ) -> None:
-    """Run the optional AgentSerial HTTP API."""
-    try:
-        import uvicorn
-    except ImportError:
-        console.print('[red]API dependencies are not installed. Run: pip install "agentserial[api]"[/]')
-        raise typer.Exit(2)
+    """Run the AgentSerial HTTP API without the browser workspace."""
+    import uvicorn
+
     console.print(f"AgentSerial API: http://{host}:{port} (docs: /docs)")
     uvicorn.run("agentserial.api:app", host=host, port=port)
+
+
+@app.command()
+def start(
+    host: Annotated[str, typer.Option(help="Interface to bind the local application to")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port, or 0 to select an available port", min=0, max=65535)] = 0,
+    browser: Annotated[bool, typer.Option("--browser/--no-browser", help="Open the workspace automatically")] = True,
+) -> None:
+    """Start the complete local workspace with zero configuration."""
+    import uvicorn
+
+    if host not in {"127.0.0.1", "localhost", "::1"} and not os.getenv("AGENTSERIAL_API_KEY"):
+        console.print("[red]AGENTSERIAL_API_KEY is required when binding outside localhost.[/]")
+        raise typer.Exit(2)
+    selected_port = port or _available_port(host)
+    browser_host = "localhost" if host in {"0.0.0.0", "::"} else host
+    url_host = f"[{browser_host}]" if ":" in browser_host else browser_host
+    url = f"http://{url_host}:{selected_port}/app/"
+    console.print(f"[green]AgentSerial is ready at {url}[/]")
+    console.print("Press Ctrl+C to stop.")
+    if browser:
+        threading.Thread(target=_open_when_ready, args=(url,), daemon=True).start()
+    uvicorn.run("agentserial.api:app", host=host, port=selected_port, log_level="warning")
+
+
+def _available_port(host: str) -> int:
+    bind_host = "127.0.0.1" if host == "localhost" else host
+    family = socket.AF_INET6 if ":" in bind_host else socket.AF_INET
+    with socket.socket(family, socket.SOCK_STREAM) as listener:
+        listener.bind((bind_host, 0))
+        return int(listener.getsockname()[1])
+
+
+def _open_when_ready(url: str) -> None:
+    health_url = f"{url.rsplit('/app/', 1)[0]}/health"
+    for _ in range(50):
+        try:
+            with urllib.request.urlopen(health_url, timeout=0.25) as response:
+                if response.status == 200:
+                    webbrowser.open(url)
+                    return
+        except OSError:
+            time.sleep(0.1)
 
 
 @app.command("init")

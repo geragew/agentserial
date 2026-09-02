@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import uvicorn
 from typer.testing import CliRunner
 
 from agentserial.cli import app
@@ -72,3 +73,24 @@ def test_validate_does_not_run_replay_search() -> None:
     assert result.exit_code == 0
     assert "VALID" in result.stdout
 
+
+def test_start_launches_complete_workspace(monkeypatch) -> None:
+    calls: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+    def fake_run(*args: object, **kwargs: object) -> None:
+        calls.append((args, kwargs))
+
+    monkeypatch.setattr(uvicorn, "run", fake_run)
+    result = runner.invoke(app, ["start", "--port", "9123", "--no-browser"])
+    assert result.exit_code == 0
+    assert "http://127.0.0.1:9123/app/" in result.stdout
+    assert calls == [
+        (("agentserial.api:app",), {"host": "127.0.0.1", "port": 9123, "log_level": "warning"})
+    ]
+
+
+def test_start_requires_api_key_for_public_binding(monkeypatch) -> None:
+    monkeypatch.delenv("AGENTSERIAL_API_KEY", raising=False)
+    result = runner.invoke(app, ["start", "--host", "0.0.0.0", "--no-browser"])
+    assert result.exit_code == 2
+    assert "AGENTSERIAL_API_KEY is required" in result.stdout

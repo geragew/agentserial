@@ -46,15 +46,15 @@ SCHEDULE_DEPENDENT
 AgentSerial requires Python 3.11 or newer.
 
 ```console
-python -m pip install -e ".[dev]"
-agentserial --help
-agentserial check examples/06_schedule_dependent/history.json --contract examples/06_schedule_dependent/contract.yaml
-pytest
-python scripts/export_schemas.py --check
-python scripts/release_smoke.py
+python -m pip install agentserial
+agentserial start
 ```
 
-Try it immediately:
+That single command selects an available local port, starts the interface and
+API together, and opens the workspace in your browser. Press `Ctrl+C` to stop.
+No account, API key, configuration file, or separate frontend server is needed.
+
+Try the terminal workflow immediately:
 
 ```console
 agentserial demo
@@ -73,11 +73,10 @@ agentserial report history.json --contract contract.yaml --output report.html
 
 ## HTTP API
 
-The optional HTTP API exposes the same deterministic checker used by the CLI.
-Install and run it with:
+The HTTP API is included in the standard installation and exposes the same
+deterministic checker used by the CLI. Run it without opening the interface:
 
 ```console
-python -m pip install -e ".[api]"
 agentserial serve
 ```
 
@@ -123,9 +122,10 @@ documented `agentserial.*` instrumentation convention in [OTEL.md](OTEL.md).
 
 ## Visual workspace
 
-Open [index.html](index.html) directly in a browser for the interactive local
-workspace. It includes Overview, History, Contract, Counterexample, Runs, and
-Specification views with four consistent example histories.
+Run `agentserial start` for the interactive local workspace. It includes
+Overview, History, Contract, Counterexample, Runs, and Specification views with
+four consistent example histories. Contributors can also open
+[index.html](index.html) directly while editing the frontend.
 
 Generated project media is under `media/`:
 
@@ -137,9 +137,18 @@ The workspace includes a responsive inspection layout, light and dark themes,
 four real examples, and a downloadable project bundle. It works directly from
 `index.html`; no server or account is required.
 
-With `agentserial serve` running, select **Analyze files** in the workspace to
-submit real JSON or YAML documents to the local API. The browser displays the
-verdict, replay counts, and reduced counterexample without terminal commands.
+Select **Analyze files** to submit real JSON or YAML documents. The browser uses
+the bundled local API and displays the verdict, replay counts, and reduced
+counterexample without terminal commands.
+
+## Development
+
+```console
+python -m pip install -e ".[dev]"
+pytest
+python scripts/export_schemas.py --check
+python scripts/release_smoke.py
+```
 
 The visual system is explained in [DESIGN_RATIONALE.md](DESIGN_RATIONALE.md).
 
@@ -179,7 +188,7 @@ framework.
 
 ## Project status
 
-AgentSerial is an early open-source release (`v0.4.0`) intended for research,
+AgentSerial is an early open-source release (`v0.5.0`) intended for research,
 experimentation, and feedback. The current checker is fully tested within the
 scope described above, but it is not yet a substitute for production transaction
 controls or formal verification.

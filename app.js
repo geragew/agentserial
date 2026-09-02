@@ -129,6 +129,10 @@ let currentKey = "overspend";
 let currentView = "overview";
 let selectedOperation = null;
 let contractMode = "interpreted";
+
+const defaultApiEndpoint = location.protocol === "http:" || location.protocol === "https:"
+  ? location.origin
+  : "http://127.0.0.1:8000";
 let drawerMode = "interpreted";
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -279,6 +283,7 @@ function incrementTime(time) {
 function escapeHtml(value) { return value.replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]); }
 
 function wireInteractions() {
+  $("#apiEndpoint").value = defaultApiEndpoint;
   window.addEventListener("hashchange", showRoute);
   $$(".sidebar-nav [data-view]").forEach(button => button.addEventListener("click", () => switchView(button.dataset.view)));
   $$('[data-go-view]').forEach(button => button.addEventListener("click", () => switchView(button.dataset.goView)));

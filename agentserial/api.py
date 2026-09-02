@@ -7,6 +7,7 @@ import secrets
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from pathlib import Path
+from importlib.resources import files
 from typing import Annotated, Any
 from uuid import uuid4
 from time import monotonic
@@ -15,6 +16,8 @@ import yaml
 from fastapi import Depends, FastAPI, File, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import Field, ValidationError
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -149,6 +152,17 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
     @application.get("/health", tags=["operations"])
     def health() -> dict[str, str]:
         return {"status": "ok", "version": __version__}
+
+    web_directory = Path(str(files("agentserial").joinpath("web")))
+    source_web_directory = Path(__file__).parents[1]
+    if not web_directory.is_dir() and (source_web_directory / "index.html").is_file():
+        web_directory = source_web_directory
+    if web_directory.is_dir():
+        application.mount("/app", StaticFiles(directory=web_directory, html=True), name="app")
+
+        @application.get("/", include_in_schema=False)
+        def application_home() -> RedirectResponse:
+            return RedirectResponse("/app/")
 
     @application.post(
         "/v1/validate", response_model=ValidationResponse, tags=["analysis"], dependencies=[Depends(authorize)]

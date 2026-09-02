@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import tempfile
@@ -11,9 +12,12 @@ ROOT = Path(__file__).parents[1]
 
 
 def run(*command: str, cwd: Path = ROOT, expected: int = 0) -> subprocess.CompletedProcess[str]:
+    environment = os.environ.copy()
+    environment["PYTHONSAFEPATH"] = "1"
     result = subprocess.run(
         command,
         cwd=cwd,
+        env=environment,
         check=False,
         capture_output=True,
         text=True,
@@ -42,13 +46,24 @@ def main() -> int:
         scripts = environment / ("Scripts" if sys.platform == "win32" else "bin")
         python = scripts / ("python.exe" if sys.platform == "win32" else "python")
         cli = scripts / ("agentserial.exe" if sys.platform == "win32" else "agentserial")
-        run(str(python), "-m", "pip", "install", f"{wheels[0]}[api]", "--disable-pip-version-check")
+        run(str(python), "-m", "pip", "install", str(wheels[0]), "--disable-pip-version-check")
         help_result = run(str(cli), "--help")
-        if "check" not in help_result.stdout:
-            raise RuntimeError("installed CLI does not expose the check command")
-        api_import = run(str(python), "-c", "from agentserial.api import app; print(app.title)")
-        if "AgentSerial API" not in api_import.stdout:
-            raise RuntimeError("installed API extra did not expose the application")
+        if "check" not in help_result.stdout or "start" not in help_result.stdout:
+            raise RuntimeError("installed CLI does not expose the expected commands")
+        application_check = run(
+            str(python),
+            "-c",
+            "from importlib.resources import files; "
+            "from agentserial.api import app; "
+            "page=files('agentserial').joinpath('web', 'index.html'); "
+            "assert page.is_file(), f'missing bundled workspace: {page}'; "
+            "assert 'Analyze files' in page.read_text(encoding='utf-8'), 'incomplete bundled workspace'; "
+            "paths={route.path for route in app.routes}; "
+            "assert {'/', '/app'}.issubset(paths), f'missing workspace routes: {paths}'; "
+            "print(app.title)",
+        )
+        if "AgentSerial API" not in application_check.stdout:
+            raise RuntimeError("installed package did not expose the complete application")
         built_in_demo = run(str(cli), "demo")
         if "SCHEDULE_DEPENDENT" not in built_in_demo.stdout:
             raise RuntimeError("installed built-in demo returned the wrong classification")
@@ -112,7 +127,7 @@ def main() -> int:
         print(f"wheel: {wheels[0].name}")
         print(f"sdist: {sdists[0].name}")
         print("installed CLI: PASS")
-        print("installed API extra: PASS")
+        print("installed zero-configuration application: PASS")
         print("JSONL import and validation: PASS")
         print("OpenTelemetry import and check: PASS")
         print("Standalone HTML report: PASS")

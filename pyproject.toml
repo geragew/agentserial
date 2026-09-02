@@ -4,21 +4,24 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentserial"
-version = "0.4.0"
+version = "0.5.0"
 description = "Correctness classification for parallel AI-agent effect histories"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
 authors = [{name = "GERAGEW", email = "GERAGEW@ICLOUD.COM"}]
 dependencies = [
+  "fastapi>=0.116,<1",
   "pydantic>=2.8,<3",
+  "python-multipart>=0.0.20,<1",
   "PyYAML>=6.0,<7",
   "rich>=13.7,<15",
   "typer>=0.12,<1",
+  "uvicorn>=0.35,<1",
 ]
 
 [project.optional-dependencies]
-api = ["fastapi>=0.116,<1", "python-multipart>=0.0.20,<1", "uvicorn>=0.35,<1"]
+api = []
 dev = [
   "build>=1.2,<2",
   "fastapi>=0.116,<1",
@@ -34,6 +37,15 @@ agentserial = "agentserial.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentserial"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"index.html" = "agentserial/web/index.html"
+"styles.css" = "agentserial/web/styles.css"
+"app.js" = "agentserial/web/app.js"
+"assets" = "agentserial/web/assets"
+"README.md" = "agentserial/web/README.md"
+"SPEC.md" = "agentserial/web/SPEC.md"
+"PRIOR_ART.md" = "agentserial/web/PRIOR_ART.md"
 
 [tool.pytest.ini_options]
 addopts = "-q"
